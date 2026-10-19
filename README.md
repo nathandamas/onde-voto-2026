@@ -86,4 +86,4 @@ tests/testar_dados.py      confere data/ contra os CSVs do TSE
 - Limites municipais: projeto geodata-br, a partir de dados do IBGE. Verifique a licença do projeto.
 - Mapa base: © colaboradores do OpenStreetMap, © CARTO.
 - MapLibre GL JS: licença BSD-3-Clause.
-- Código deste site: escolha uma licença (por exemplo, MIT) e adicione um arquivo `LICENSE`.
+- Código deste site: licença MIT (veja `LICENSE`). A licença cobre o código; os dados do TSE, os limites municipais, o mapa base e o MapLibre seguem as licenças e os termos das respectivas fontes, listados acima.
