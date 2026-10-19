@@ -276,8 +276,17 @@ def testar_estatisticas(ests, completo):
         med = (v[len(v) // 2] if len(v) % 2 else (v[len(v) // 2 - 1] + v[len(v) // 2]) / 2) if v else None
         if (med is None) != (x["mediana_m"] is None) or (med is not None and abs(med - x["mediana_m"]) > 2):
             falhas.append(f"região {x['regiao']}: mediana {x['mediana_m']} m, recontado {med}")
-    meds = [x["mediana_m"] for x in pr if x["mediana_m"] is not None]
-    if meds != sorted(meds, reverse=True) or any(x["mediana_m"] is not None for x in pr[len(meds):]):
+        # maior distância e mudanças acima de 2 km
+        mx = x.get("maior")
+        if bool(v) != bool(mx) or (v and abs(v[-1] - mx["m"]) > max(2, 0.005 * v[-1])):
+            falhas.append(f"região {x['regiao']}: maior {mx and mx['m']} m, recontado {v[-1] if v else None}")
+        if mx and _REGIAO[mx["uf"]] != x["regiao"]:
+            falhas.append(f"região {x['regiao']}: maior distância em {mx['uf']}, de outra região")
+        n2 = sum(1 for d in v if d > 2000); borda = sum(1 for d in v if abs(d - 2000) < 1)
+        if abs(n2 - x.get("acima_2km", -99)) > borda:
+            falhas.append(f"região {x['regiao']}: {x.get('acima_2km')} acima de 2 km, recontado {n2}")
+    maiores = [x["maior"]["m"] for x in pr if x.get("maior")]
+    if maiores != sorted(maiores, reverse=True) or any(x.get("maior") for x in pr[len(maiores):]):
         falhas.append("por_regiao fora da ordem da maior para a menor distância")
     b = E["brasil"]
     print(f"estatisticas.json: {b['mudou_sec']} seções e {b['mudou_el']} eleitores mudaram, "
