@@ -250,6 +250,34 @@ def gerar(caminho_csv, pasta_dados, pasta_limites):
             "coord_removidas": len(suspeitas), "sem_limite": sorted(sem_limite)}
 
 
+def gerar_mudancas(pasta_dados, ufs):
+    """data/mudancas.json: cada local do 2º turno que recebe seções com situação MUDOU ou CONFIRA, em todo o país.
+    Lido de data/<UF>.json, para usar exatamente a mesma classificação da página de consulta."""
+    locais_saida, total = [], {"mudou": 0, "confira": 0}
+    for u in ufs:
+        D = json.load(open(Path(pasta_dados) / f"{u['uf']}.json", encoding="utf-8"))
+        por = {(l[0], l[1]): l for l in D["secoes"]}
+        grupos = {}
+        for l in D["secoes"]:
+            if l[6] not in (MUDOU, CONFIRA):
+                continue
+            e = por.get((l[0], l[5]), l) if l[5] > 0 else l
+            A = D["locais"][e[4]]
+            grupos.setdefault(e[3], {"m": l[2], "s": []})["s"].append([l[0], l[1], l[6], A["n"], A["e"]])
+            total["mudou" if l[6] == MUDOU else "confira"] += 1
+        for i, g in grupos.items():
+            L = D["locais"][i]
+            g["s"].sort(key=lambda x: (x[0], x[1]))
+            locais_saida.append({"uf": u["uf"], "mun": D["municipios"][g["m"]], "n": L["n"], "e": L["e"], "b": L["b"],
+                                 "lat": L["lat"], "lon": L["lon"], "s": g["s"]})
+    locais_saida.sort(key=lambda x: (x["uf"] == "ZZ", x["uf"], x["mun"], x["n"]))
+    with open(Path(pasta_dados) / "mudancas.json", "w", encoding="utf-8") as f:
+        json.dump({"gerado_tse": sorted({d for u in ufs for d in u["gerado_tse"]}), "total": total, "locais": locais_saida},
+                  f, ensure_ascii=False, separators=(",", ":"))
+    print(f"mudanças: {total['mudou']} seções mudaram, {total['confira']} para conferir, em {len(locais_saida)} locais "
+          f"-> {Path(pasta_dados) / 'mudancas.json'}", file=sys.stderr)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("entradas", nargs="+", help="CSVs do TSE ou uma pasta com eles")
@@ -274,6 +302,7 @@ def main():
         json.dump({"ufs": ufs}, f, ensure_ascii=False, indent=0)
     total = sum(u["secoes"] for u in ufs); mud = sum(u["mudaram"] for u in ufs); conf = sum(u.get("confira", 0) for u in ufs)
     print(f"TOTAL: {len(ufs)} UFs, {total} seções, {mud} mudam de local, {conf} para conferir -> {indice_path}", file=sys.stderr)
+    gerar_mudancas(a.dados, ufs)
 
 
 if __name__ == "__main__":

@@ -147,6 +147,40 @@ def testar_uf(caminho_csv):
     return uf, len(js), len(esperado), falhas, avisos
 
 
+def testar_mudancas():
+    """data/mudancas.json deve listar exatamente as seções MUDOU (1) e CONFIRA (2) de todas as UFs."""
+    falhas = []
+    caminho = RAIZ / "data" / "mudancas.json"
+    if not caminho.exists():
+        return ["data/mudancas.json não existe"]
+    M = json.load(open(caminho, encoding="utf-8"))
+    esperado = {}
+    for u in json.load(open(RAIZ / "data" / "ufs.json", encoding="utf-8"))["ufs"]:
+        D = json.load(open(RAIZ / "data" / f"{u['uf']}.json", encoding="utf-8"))
+        por = {(l[0], l[1]): l for l in D["secoes"]}
+        for l in D["secoes"]:
+            if l[6] in (1, 2):
+                e = por.get((l[0], l[5]), l) if l[5] > 0 else l
+                esperado[(u["uf"], l[0], l[1])] = (l[6], D["locais"][e[3]]["n"], D["locais"][e[4]]["n"], D["municipios"][l[2]])
+    obtido = {}
+    for L in M["locais"]:
+        for z, s_, st, n1, _e1 in L["s"]:
+            k = (L["uf"], z, s_)
+            if k in obtido:
+                falhas.append(f"seção repetida em mudancas.json: {k}")
+            obtido[k] = (st, L["n"], n1, L["mun"])
+    if set(obtido) != set(esperado):
+        falhas.append(f"seções diferentes: {len(obtido)} em mudancas.json, {len(esperado)} nas UFs")
+    difs = [k for k in esperado if k in obtido and obtido[k] != esperado[k]]
+    if difs:
+        falhas.append(f"{len(difs)} seções com situação, local ou município diferente, ex.: {difs[:3]}")
+    t = M.get("total", {})
+    if t.get("mudou") != sum(1 for v in esperado.values() if v[0] == 1) or t.get("confira") != sum(1 for v in esperado.values() if v[0] == 2):
+        falhas.append(f"totais de mudancas.json não conferem: {t}")
+    print(f"mudancas.json: {len(M['locais'])} locais, {t.get('mudou')} mudaram, {t.get('confira')} para conferir — {'OK' if not falhas else 'FALHOU'}")
+    return falhas
+
+
 def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__)
@@ -164,6 +198,10 @@ def main():
         for x in falhas:
             print(f"   FALHOU: {x}")
     print(f"TOTAL: {len(arqs)} arquivos, {total_s} seções, {total_m} mudam de local do 1º para o 2º turno")
+    falhas_m = testar_mudancas()
+    total_f += len(falhas_m)
+    for x in falhas_m:
+        print(f"   FALHOU (mudancas.json): {x}")
     if total_f:
         sys.exit(1)
     print("Todos os testes passaram.")

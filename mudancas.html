@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Onde as seções mudaram de local</title>
+<meta name="description" content="Mapa dos locais de votação que recebem, no 2º turno de 25/10/2026, seções que votaram em outro lugar no 1º turno. Dados do cadastro do TSE.">
+<meta name="theme-color" content="#0f3b46">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="lib/maplibre-gl.css">
+<link rel="stylesheet" href="assets/estilo.css">
+</head>
+<body class="pagina-mudancas">
+<header class="topo">
+  <div class="faixa">
+    <p class="selo">Brasil · do 1º para o 2º turno · domingo, 25 de outubro</p>
+    <h1>Onde as seções <span>mudaram</span> de local</h1>
+    <p class="sub">Cada ponto é um local de votação do 2º turno que recebe seções que votaram em outro lugar no 1º turno, segundo o cadastro do TSE.</p>
+    <p class="volta"><a href="./">← Consultar a minha seção</a></p>
+  </div>
+</header>
+
+<main class="conteudo">
+  <section class="busca filtros" aria-label="Filtros">
+    <p class="resumo" id="resumo">Carregando as mudanças…</p>
+    <div class="campo">
+      <label for="f-uf">Estado</label>
+      <select id="f-uf"><option value="">Todo o Brasil</option></select>
+    </div>
+    <fieldset class="campo situacoes">
+      <legend>Mostrar</legend>
+      <label class="opcao"><input type="checkbox" id="f-mudou" checked> <span class="pt pt-mud"></span> Mudou de local</label>
+      <label class="opcao"><input type="checkbox" id="f-confira" checked> <span class="pt pt-conf"></span> Confira o endereço</label>
+    </fieldset>
+    <p id="erro" class="erro" role="alert" hidden></p>
+  </section>
+
+  <section id="mapa-bloco" class="mapa-bloco" aria-labelledby="titulo-mapa">
+    <div class="mapa-cab">
+      <h2 id="titulo-mapa">Mapa</h2>
+      <ul class="legenda">
+        <li><span class="pt pt-mud"></span>Recebe seções que mudaram de local</li>
+        <li><span class="pt pt-conf"></span>Só nome ou endereço diferente no cadastro</li>
+        <li>Círculo maior = mais seções</li>
+      </ul>
+    </div>
+    <div id="mapa" class="mapa" role="region" aria-label="Mapa dos locais que recebem seções que mudaram de local"></div>
+    <p class="nota-mapa">Toque em um ponto para ver as seções. Os pontos usam as coordenadas do cadastro do TSE e podem estar algumas dezenas de metros fora do lugar exato. Locais sem coordenada e o exterior aparecem só na lista.</p>
+  </section>
+
+  <section class="lista-mud" aria-labelledby="titulo-lista">
+    <h2 id="titulo-lista">Lista de locais</h2>
+    <div id="lista"></div>
+  </section>
+
+  <aside class="confirme">
+    <h2>Confirme antes de sair de casa</h2>
+    <p>A consulta oficial está no aplicativo <b>e-Título</b> e no <a href="https://www.tse.jus.br/servicos-eleitorais/autoatendimento-eleitoral" target="_blank" rel="noopener">Autoatendimento do TSE</a>.</p>
+    <p>Dúvidas: procure o Tribunal Regional Eleitoral do seu estado na <a href="https://www.tse.jus.br/institucional/justica-eleitoral/tres" target="_blank" rel="noopener">lista de TREs do Brasil</a>.</p>
+  </aside>
+</main>
+
+<footer class="rodape">
+  <p><b>De onde vêm os dados.</b> Cadastro de locais de votação do Tribunal Superior Eleitoral, conjunto <a href="https://dadosabertos.tse.jus.br/dataset/eleitorado-2026" target="_blank" rel="noopener">Eleitorado por local de votação 2026</a>, arquivos gerados em <span id="data-tse">—</span>. "Mudou de local": o local da seção no 2º turno é diferente do 1º turno. "Confira o endereço": o cadastro mostra nome ou endereço diferente para o local, que pode ser o mesmo prédio.</p>
+  <p>Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores do OpenStreetMap</a>, © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>. <span id="repo-txt" hidden>Código aberto no <a id="link-repo" href="#" target="_blank" rel="noopener">GitHub</a>.</span></p>
+</footer>
+
+<script src="lib/maplibre-gl.js"></script>
+<script src="assets/mudancas.js"></script>
+</body>
+</html>
