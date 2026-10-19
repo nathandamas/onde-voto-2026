@@ -9,14 +9,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
-<link rel="stylesheet" href="assets/estilo.css">
+<link rel="stylesheet" href="assets/estilo.css?v=2026-10-19c">
 </head>
 <body class="pagina-estat">
 <header class="topo">
   <div class="faixa">
     <p class="selo">Brasil · do 1º para o 2º turno · domingo, 25 de outubro</p>
     <h1>As mudanças em <span>números</span></h1>
-    <p class="sub">Quantas seções e quantos eleitores votam em outro local no 2º turno, por região, estado e cidade, segundo o cadastro do TSE.</p>
+    <p class="sub">Quantas seções e quantos eleitores vão votar em outro local no 2º turno, segundo o cadastro do TSE.</p>
     <nav class="volta" aria-label="Outras páginas"><a href="./">← Consultar a minha seção</a> <a href="mudancas.html">Ver o mapa das mudanças →</a></nav>
   </div>
 </header>
@@ -29,72 +29,74 @@
   </section>
   <p class="nota-confira" id="nota-confira" hidden></p>
 
-  <section class="bloco" aria-labelledby="t-regiao">
-    <div class="bloco-cab">
-      <h2 id="t-regiao">Por região e por estado</h2>
-      <fieldset class="medida">
-        <legend>Comparar por</legend>
-        <label><input type="radio" name="medida" value="sec" checked> Seções</label>
-        <label><input type="radio" name="medida" value="el"> Eleitores</label>
-        <label><input type="radio" name="medida" value="pct"> % das seções</label>
-      </fieldset>
-      <p class="explica" id="explica-medida"></p>
-    </div>
-    <h3>Regiões</h3>
+  <section class="bloco" aria-labelledby="t-onde">
+    <h2 id="t-onde">Onde mais mudou</h2>
+    <fieldset class="medida">
+      <legend>Comparar por</legend>
+      <div class="medida-opcoes">
+        <label><input type="radio" name="medida" value="sec" checked> <span>Seções</span></label>
+        <label><input type="radio" name="medida" value="el"> <span>Eleitores</span></label>
+        <label><input type="radio" name="medida" value="pct"> <span>Proporção</span></label>
+      </div>
+    </fieldset>
+    <p class="explica" id="explica-medida" aria-live="polite"></p>
+
+    <h3>Por região</h3>
     <ol class="barras" id="b-regioes"></ol>
-    <h3>Estados</h3>
+
+    <h3>Por estado</h3>
     <ol class="barras" id="b-ufs"></ol>
+    <p class="explica" id="ufs-zero" hidden></p>
+
     <details class="tabela-det">
-      <summary>Ver a tabela completa por estado</summary>
-      <div class="rolagem" tabindex="0" role="region" aria-label="Tabela por estado">
+      <summary>Ver todos os números por estado em tabela</summary>
+      <div class="rolagem" tabindex="0" role="region" aria-label="Tabela por estado (role para os lados)">
         <table id="t-ufs"></table>
       </div>
     </details>
   </section>
 
   <section class="bloco" aria-labelledby="t-cidades">
-    <div class="bloco-cab">
-      <h2 id="t-cidades">Por cidade</h2>
-      <div class="controles">
-        <div class="campo">
-          <label for="c-uf">Estado</label>
-          <select id="c-uf"><option value="">Todo o Brasil</option></select>
-        </div>
-        <div class="campo">
-          <label for="c-ordem">Ordenar por</label>
-          <select id="c-ordem">
-            <option value="sec">Mais seções que mudaram</option>
-            <option value="el">Mais eleitores</option>
-            <option value="pct">Maior % das seções da cidade</option>
-          </select>
-        </div>
+    <h2 id="t-cidades">Cidades com mais mudanças</h2>
+    <div class="controles">
+      <div class="campo">
+        <label for="c-uf">Estado</label>
+        <select id="c-uf"><option value="">Todo o Brasil</option></select>
       </div>
-      <p class="explica" id="explica-pct" hidden>Em cidades pequenas, poucas seções já fazem um percentual alto.</p>
+      <div class="campo">
+        <label for="c-ordem">Ordenar por</label>
+        <select id="c-ordem">
+          <option value="sec">Mais seções que mudaram</option>
+          <option value="el">Mais eleitores afetados</option>
+          <option value="pct">Maior proporção da cidade</option>
+        </select>
+      </div>
     </div>
+    <p class="explica" id="explica-pct" hidden>Proporção: das seções da cidade, quantas em cada 100 mudaram de local. Em cidades pequenas, poucas seções já dão uma proporção alta.</p>
     <ol class="ranking" id="ranking"></ol>
     <button type="button" class="botao-sec" id="mais-cidades" hidden></button>
   </section>
 
   <section class="bloco" aria-labelledby="t-dist">
-    <div class="bloco-cab">
-      <h2 id="t-dist">Distância entre o local antigo e o novo</h2>
-      <p class="explica" id="explica-dist"></p>
-    </div>
-    <ol class="barras" id="b-dist"></ol>
-    <p class="explica">Distância curta não quer dizer o mesmo lugar: pode ser outro prédio na mesma quadra ou uma coordenada imprecisa no cadastro.</p>
+    <h2 id="t-dist">Quão longe fica o novo local</h2>
+    <p class="frase-destaque" id="frase-dist"></p>
+    <ol class="barras barras-dist" id="b-dist"></ol>
+    <p class="explica" id="explica-dist"></p>
+
     <h3>As maiores distâncias</h3>
     <ol class="maiores" id="maiores"></ol>
-    <p class="explica">Distâncias grandes também podem vir de coordenada errada no cadastro. Confira o endereço antes de tirar conclusões.</p>
+    <p class="explica">Distâncias muito grandes podem vir de coordenada errada no cadastro. Confira o endereço antes de tirar conclusões.</p>
   </section>
 
   <details class="bloco metodo">
     <summary><h2>Como contamos</h2></summary>
     <ul>
       <li><b>Mudou de local:</b> o local da seção no 2º turno é outro em relação ao 1º turno de 2026, no cadastro do TSE. É a mesma regra da página de consulta.</li>
-      <li><b>Confira o endereço:</b> o cadastro mostra nome ou endereço diferente para o local, que pode ser o mesmo prédio. Essas seções são contadas à parte e não entram nos totais de "mudou".</li>
-      <li><b>Eleitores:</b> número de eleitores aptos vinculados a cada seção (campo QT_ELEITOR_SECAO), igual nos dois turnos. Não inclui ajustes de voto em trânsito.</li>
-      <li><b>Seções agregadas:</b> votam no local da seção principal e são contadas pela situação desse local, com os próprios eleitores.</li>
-      <li><b>Distância:</b> linha reta entre as coordenadas do cadastro nos dois turnos. Coordenadas que caem a mais de 1 km fora do próprio município são descartadas, e essas seções ficam sem distância.</li>
+      <li><b>Confira o endereço:</b> o cadastro mostra nome ou endereço diferente para o local, que pode ser o mesmo prédio. Essas seções são contadas à parte e não entram nos números de "mudou".</li>
+      <li><b>Eleitores:</b> eleitores aptos vinculados a cada seção (campo QT_ELEITOR_SECAO do TSE), o mesmo número nos dois turnos. Não inclui ajustes de voto em trânsito.</li>
+      <li><b>Proporção:</b> seções que mudaram divididas pelo total de seções da região, do estado ou da cidade.</li>
+      <li><b>Seções agregadas:</b> votam no local da seção principal e seguem a situação desse local, com os próprios eleitores.</li>
+      <li><b>Distância:</b> linha reta entre as coordenadas do cadastro nos dois turnos, não o caminho pelas ruas. Coordenadas que caem a mais de 1 km fora do próprio município são descartadas, e essas seções ficam sem distância.</li>
       <li><b>Regiões:</b> grandes regiões do IBGE. O voto no exterior aparece à parte, e lá "cidade" é a cidade do consulado ou da embaixada.</li>
     </ul>
   </details>
@@ -111,6 +113,6 @@
   <p><span id="repo-txt" hidden>Código aberto no <a id="link-repo" href="#" target="_blank" rel="noopener">GitHub</a>.</span></p>
 </footer>
 
-<script src="assets/estatisticas.js"></script>
+<script src="assets/estatisticas.js?v=2026-10-19c"></script>
 </body>
 </html>

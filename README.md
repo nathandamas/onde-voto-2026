@@ -50,6 +50,8 @@ Na página de números, "eleitores" é o campo `QT_ELEITOR_SECAO` (eleitores apt
 3. O site fica em `https://<seu-usuario>.github.io/<repositorio>/`. O link para o repositório no rodapé é preenchido sozinho nesse endereço.
 4. Link direto para um estado: acrescente `#SP`, `#PR`, `#ZZ` etc. ao endereço.
 
+Ao mudar `assets/estilo.css` ou algum `.js`, troque o `?v=` dos links nas três páginas (o mesmo valor em todas). O GitHub Pages deixa os arquivos em cache por alguns minutos, e sem isso o navegador pode juntar a página nova com o CSS antigo.
+
 O site precisa ser servido por HTTP. Abrindo o `index.html` direto do disco, o navegador bloqueia a leitura dos dados. Para testar localmente: `python -m http.server` e abra `http://localhost:8000`.
 
 ## Atualizar os dados
