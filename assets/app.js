@@ -101,9 +101,7 @@ async function selecionarUF(uf) {
   $("#rotulo-cidade").textContent = ext ? "Sua cidade no exterior" : "Sua cidade";
   $("#cidade").placeholder = ext ? "Comece a digitar, ex.: Lisboa" : "Comece a digitar o nome";
   $("#cidade").disabled = false;
-  $("#tre-txt").hidden = ext;
   $("#dica-exterior").hidden = !ext;
-  if (!ext) { $("#tre-link").href = `https://www.tre-${uf.toLowerCase()}.jus.br`; $("#tre-link").textContent = `TRE-${uf}`; }
   guarda.gravar("uf", uf);
   try { history.replaceState(null, "", "#" + uf); } catch { /* ignora */ }
   atualizarMapa();
