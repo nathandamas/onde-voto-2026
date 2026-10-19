@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Onde voto no 2º turno?</title>
+<meta name="description" content="Consulte onde sua seção vota no 2º turno de 25/10/2026, em todo o Brasil e no exterior, e veja se o local mudou desde o 1º turno. Dados do cadastro do TSE.">
+<meta name="theme-color" content="#0f3b46">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="lib/maplibre-gl.css">
+<link rel="stylesheet" href="assets/estilo.css">
+</head>
+<body>
+<header class="topo">
+  <div class="faixa">
+    <p class="selo">Brasil · 2º turno · domingo, 25 de outubro</p>
+    <h1>Onde eu voto no <span>2º turno</span>?</h1>
+    <p class="sub">Escolha seu estado e sua cidade e digite o número da sua seção. Mostramos onde você vota e se o local mudou desde o 1º turno.</p>
+  </div>
+</header>
+
+<main class="conteudo">
+  <form id="busca" class="busca" autocomplete="off" novalidate>
+    <div class="campo">
+      <label for="uf"><span class="passo">1</span> Seu estado</label>
+      <select id="uf"><option value="">Escolha o estado</option></select>
+      <p id="carregando" class="carregando" role="status" hidden></p>
+    </div>
+    <div class="campo">
+      <label for="cidade"><span class="passo">2</span> <span id="rotulo-cidade">Sua cidade</span></label>
+      <div class="auto">
+        <input id="cidade" type="text" inputmode="search" placeholder="Escolha o estado primeiro" aria-autocomplete="list" aria-controls="sugestoes" aria-expanded="false" enterkeyhint="next" disabled>
+        <ul id="sugestoes" class="sugestoes" role="listbox" hidden></ul>
+      </div>
+      <p id="dica-exterior" class="dica" hidden>No exterior, digite a cidade que aparece no seu título como município. Normalmente é a cidade do consulado ou da embaixada, que pode ser diferente da cidade onde você mora.</p>
+    </div>
+    <div class="campo">
+      <label for="secao"><span class="passo">3</span> Número da sua seção</label>
+      <input id="secao" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="ex.: 145" enterkeyhint="search">
+      <details class="ajuda">
+        <summary>Onde encontro minha seção?</summary>
+        <p>No seu título de eleitor ou no aplicativo e-Título, no campo <b>Seção</b>. A <b>Zona</b> aparece logo ao lado e pode ser pedida se a sua cidade tiver mais de uma zona.</p>
+      </details>
+    </div>
+    <button id="ver" type="submit" class="botao">Ver meu local</button>
+    <p id="erro" class="erro" role="alert" hidden></p>
+  </form>
+
+  <section id="resultado" class="resultado" aria-live="polite" hidden></section>
+
+  <section id="mapa-bloco" class="mapa-bloco" aria-labelledby="titulo-mapa">
+    <div class="mapa-cab">
+      <h2 id="titulo-mapa">Mapa dos locais</h2>
+      <ul class="legenda">
+        <li><span class="pt pt-mud"></span>Recebe seções que mudaram de local ou de endereço</li>
+        <li><span class="pt pt-normal"></span>Local sem mudança</li>
+      </ul>
+    </div>
+    <div id="mapa" class="mapa" role="region" aria-label="Mapa dos locais de votação"></div>
+    <p class="nota-mapa" id="nota-mapa">Escolha um estado para ver os locais. Toque em um ponto para ver o nome do local e as seções. Os pontos usam as coordenadas do cadastro do TSE e podem estar algumas dezenas de metros fora do lugar exato.</p>
+  </section>
+
+  <section id="cidade-lista" class="cidade-lista" hidden></section>
+
+  <aside class="confirme">
+    <h2>Confirme antes de sair de casa</h2>
+    <p>Este site não é oficial. A consulta oficial está no aplicativo <b>e-Título</b> e no <a href="https://www.tse.jus.br/servicos-eleitorais/autoatendimento-eleitoral" target="_blank" rel="noopener">Autoatendimento do TSE</a>.</p>
+    <p id="tre-txt" hidden>Dúvidas: site do <a id="tre-link" href="#" target="_blank" rel="noopener">TRE</a> do seu estado.</p>
+  </aside>
+</main>
+
+<footer class="rodape">
+  <p><b>De onde vêm os dados.</b> Cadastro de locais de votação do Tribunal Superior Eleitoral, conjunto <a href="https://dadosabertos.tse.jus.br/dataset/eleitorado-2026" target="_blank" rel="noopener">Eleitorado por local de votação 2026</a>, arquivos gerados em <span id="data-tse">—</span>. O site compara, para cada seção, o local do 2º turno com o local do 1º turno de 2026 nesse cadastro. Mudanças de eleições anteriores não entram na comparação.</p>
+  <p>Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores do OpenStreetMap</a>, © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>. Limites municipais: IBGE, via geodata-br. <span id="repo-txt" hidden>Código aberto no <a id="link-repo" href="#" target="_blank" rel="noopener">GitHub</a>.</span></p>
+</footer>
+
+<script src="lib/maplibre-gl.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

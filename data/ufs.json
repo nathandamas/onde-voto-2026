@@ -1,0 +1,581 @@
+{
+"ufs": [
+{
+"uf": "AC",
+"nome": "Acre",
+"secoes": 2411,
+"mudaram": 8,
+"confira": 0,
+"municipios": 22,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-73.644022,
+-11.035638,
+-66.773861,
+-7.397573
+],
+"coord_removidas": 7,
+"sem_limite": []
+},
+{
+"uf": "AL",
+"nome": "Alagoas",
+"secoes": 7246,
+"mudaram": 49,
+"confira": 8,
+"municipios": 102,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-38.192866,
+-10.40772,
+-35.162567,
+-8.84358
+],
+"coord_removidas": 0,
+"sem_limite": []
+},
+{
+"uf": "AP",
+"nome": "Amapá",
+"secoes": 1971,
+"mudaram": 41,
+"confira": 0,
+"municipios": 16,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-52.580819,
+-1.124038,
+-49.933475,
+3.882407
+],
+"coord_removidas": 2,
+"sem_limite": []
+},
+{
+"uf": "AM",
+"nome": "Amazonas",
+"secoes": 8577,
+"mudaram": 50,
+"confira": 0,
+"municipios": 62,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-72.972347,
+-9.409902,
+-56.248094,
+1.78952
+],
+"coord_removidas": 11,
+"sem_limite": []
+},
+{
+"uf": "BA",
+"nome": "Bahia",
+"secoes": 37950,
+"mudaram": 117,
+"confira": 61,
+"municipios": 417,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-46.289887,
+-18.171666,
+-37.368209,
+-8.541547
+],
+"coord_removidas": 146,
+"sem_limite": [
+"Muquém do São Francisco",
+"Santa Terezinha"
+]
+},
+{
+"uf": "CE",
+"nome": "Ceará",
+"secoes": 25650,
+"mudaram": 11,
+"confira": 0,
+"municipios": 184,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-41.368464,
+-7.830294,
+-37.275313,
+-2.796952
+],
+"coord_removidas": 42,
+"sem_limite": [
+"Itapajé"
+]
+},
+{
+"uf": "DF",
+"nome": "Distrito Federal",
+"secoes": 7050,
+"mudaram": 0,
+"confira": 0,
+"municipios": 1,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-48.257962,
+-16.048694,
+-47.373759,
+-15.513341
+],
+"coord_removidas": 0,
+"sem_limite": []
+},
+{
+"uf": "ES",
+"nome": "Espírito Santo",
+"secoes": 10123,
+"mudaram": 7,
+"confira": 7,
+"municipios": 78,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-41.85049,
+-21.222355,
+-39.709272,
+-17.939472
+],
+"coord_removidas": 5,
+"sem_limite": []
+},
+{
+"uf": "GO",
+"nome": "Goiás",
+"secoes": 16226,
+"mudaram": 51,
+"confira": 20,
+"municipios": 246,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-53.206832,
+-19.36645,
+-46.110258,
+-12.98571
+],
+"coord_removidas": 3,
+"sem_limite": [
+"Bom Jesus"
+]
+},
+{
+"uf": "MA",
+"nome": "Maranhão",
+"secoes": 19794,
+"mudaram": 22,
+"confira": 13,
+"municipios": 217,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-48.553193,
+-9.904322,
+-41.835293,
+-1.100045
+],
+"coord_removidas": 150,
+"sem_limite": []
+},
+{
+"uf": "MT",
+"nome": "Mato Grosso",
+"secoes": 8975,
+"mudaram": 8,
+"confira": 0,
+"municipios": 142,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-61.494742,
+-17.979773,
+-50.296136,
+-9.121786
+],
+"coord_removidas": 3,
+"sem_limite": [
+"Boa Esperança do Norte",
+"Poxoréu"
+]
+},
+{
+"uf": "MS",
+"nome": "Mato Grosso do Sul",
+"secoes": 7284,
+"mudaram": 0,
+"confira": 1,
+"municipios": 79,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-57.889576,
+-23.979913,
+-51.093418,
+-17.57663
+],
+"coord_removidas": 5,
+"sem_limite": [
+"Paraíso das Águas"
+]
+},
+{
+"uf": "MG",
+"nome": "Minas Gerais",
+"secoes": 54193,
+"mudaram": 98,
+"confira": 18,
+"municipios": 853,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-50.910008,
+-22.883908,
+-39.947796,
+-14.266044
+],
+"coord_removidas": 191,
+"sem_limite": [
+"Brazópolis"
+]
+},
+{
+"uf": "PR",
+"nome": "Paraná",
+"secoes": 27336,
+"mudaram": 110,
+"confira": 5,
+"municipios": 399,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-54.594685,
+-26.618384,
+-48.099176,
+-22.549966
+],
+"coord_removidas": 4,
+"sem_limite": []
+},
+{
+"uf": "PB",
+"nome": "Paraíba",
+"secoes": 10845,
+"mudaram": 89,
+"confira": 0,
+"municipios": 223,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-38.748585,
+-8.154528,
+-34.798757,
+-6.186422
+],
+"coord_removidas": 3,
+"sem_limite": [
+"Joca Claudino",
+"São Vicente do Seridó",
+"Tacima"
+]
+},
+{
+"uf": "PA",
+"nome": "Pará",
+"secoes": 22082,
+"mudaram": 29,
+"confira": 7,
+"municipios": 144,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-58.444786,
+-9.542606,
+-46.099891,
+0.589665
+],
+"coord_removidas": 97,
+"sem_limite": [
+"Mojuí dos Campos",
+"Santa Izabel do Pará"
+]
+},
+{
+"uf": "PE",
+"nome": "Pernambuco",
+"secoes": 22091,
+"mudaram": 89,
+"confira": 0,
+"municipios": 185,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-41.294135,
+-9.45732,
+-32.414651,
+-3.847227
+],
+"coord_removidas": 19,
+"sem_limite": [
+"Belém do São Francisco",
+"Iguaracy",
+"Lagoa de Itaenga"
+]
+},
+{
+"uf": "PI",
+"nome": "Piauí",
+"secoes": 11261,
+"mudaram": 29,
+"confira": 0,
+"municipios": 224,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-45.923651,
+-10.818112,
+-40.434055,
+-2.809962
+],
+"coord_removidas": 29,
+"sem_limite": [
+"Nazária"
+]
+},
+{
+"uf": "RN",
+"nome": "Rio Grande do Norte",
+"secoes": 8336,
+"mudaram": 27,
+"confira": 16,
+"municipios": 167,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-38.504104,
+-6.946796,
+-34.973977,
+-4.835473
+],
+"coord_removidas": 9,
+"sem_limite": [
+"Arez",
+"Assú",
+"Boa Saúde",
+"Campo Grande",
+"Serra Caiada"
+]
+},
+{
+"uf": "RS",
+"nome": "Rio Grande do Sul",
+"secoes": 27738,
+"mudaram": 20,
+"confira": 3,
+"municipios": 497,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-57.548217,
+-33.734513,
+-49.726783,
+-27.115086
+],
+"coord_removidas": 28,
+"sem_limite": [
+"Pinto Bandeira"
+]
+},
+{
+"uf": "RJ",
+"nome": "Rio de Janeiro",
+"secoes": 38738,
+"mudaram": 0,
+"confira": 24,
+"municipios": 92,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-44.792513,
+-23.348993,
+-40.965145,
+-20.822127
+],
+"coord_removidas": 14,
+"sem_limite": []
+},
+{
+"uf": "RO",
+"nome": "Rondônia",
+"secoes": 4941,
+"mudaram": 10,
+"confira": 0,
+"municipios": 52,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-66.617257,
+-13.493607,
+-60.093848,
+-8.024045
+],
+"coord_removidas": 1,
+"sem_limite": [
+"Alvorada do Oeste",
+"Espigão do Oeste"
+]
+},
+{
+"uf": "RR",
+"nome": "Roraima",
+"secoes": 1627,
+"mudaram": 0,
+"confira": 0,
+"municipios": 15,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-62.0996,
+-1.388352,
+-59.220835,
+5.082386
+],
+"coord_removidas": 8,
+"sem_limite": []
+},
+{
+"uf": "SC",
+"nome": "Santa Catarina",
+"secoes": 17558,
+"mudaram": 0,
+"confira": 5,
+"municipios": 295,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-53.806679,
+-29.324823,
+-48.380698,
+-25.992289
+],
+"coord_removidas": 2,
+"sem_limite": [
+"Balneário Rincão",
+"Pescaria Brava"
+]
+},
+{
+"uf": "SE",
+"nome": "Sergipe",
+"secoes": 6067,
+"mudaram": 70,
+"confira": 0,
+"municipios": 75,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-38.182488,
+-11.53062,
+-36.425804,
+-9.640647
+],
+"coord_removidas": 9,
+"sem_limite": [
+"Graccho Cardoso"
+]
+},
+{
+"uf": "SP",
+"nome": "São Paulo",
+"secoes": 103904,
+"mudaram": 48,
+"confira": 47,
+"municipios": 645,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-53.058098,
+-25.217252,
+-44.198702,
+-19.873808
+],
+"coord_removidas": 1,
+"sem_limite": [
+"Embu das Artes",
+"Florínea",
+"Mogi Mirim"
+]
+},
+{
+"uf": "TO",
+"nome": "Tocantins",
+"secoes": 4490,
+"mudaram": 32,
+"confira": 0,
+"municipios": 139,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": [
+-50.698093,
+-13.22093,
+-46.127757,
+-5.25783
+],
+"coord_removidas": 9,
+"sem_limite": [
+"São Valério",
+"Tabocão"
+]
+},
+{
+"uf": "ZZ",
+"nome": "Exterior",
+"secoes": 2715,
+"mudaram": 18,
+"confira": 0,
+"municipios": 186,
+"gerado_tse": [
+"18/10/2026"
+],
+"bbox": null,
+"coord_removidas": 0,
+"sem_limite": []
+}
+]
+}

@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+# CSVs do TSE: baixe do portal; não versionar (o BRASIL.csv passa de 400 MB)
+*.csv
+*.zip
