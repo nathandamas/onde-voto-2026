@@ -1,7 +1,7 @@
 {
- "fonte": "zip enviado manualmente (eleitorado_local_votacao_2026.zip)",
+ "fonte": "https://cdn.tse.jus.br/estatistica/sead/odsele/eleitorado_locais_votacao/eleitorado_local_votacao_2026.zip",
  "gerado_tse": "18/10/2026 20:27:31",
- "sha256": "",
- "bytes": 0,
- "atualizado_em": "2026-10-19T22:45:00Z"
+ "sha256": "a948d3e587d7116ffe003fb07a083b2d1d64ce9a236f703f92d36e168f1b5adb",
+ "bytes": 167433047,
+ "atualizado_em": "2026-10-19T22:52:58Z"
 }
