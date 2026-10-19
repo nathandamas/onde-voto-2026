@@ -1,4 +1,4 @@
-# onde-voto-2026
+# Onde voto 2026?
 
 **Onde voto no 2º turno? — Eleições 2026, todo o Brasil e exterior**
 
