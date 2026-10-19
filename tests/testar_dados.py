@@ -56,6 +56,14 @@ def situacao_esperada(a, b):
     return 2 if math.hypot(dx, dy) < 200 else 1
 
 
+def volta_esperada(a, b):
+    """Escrito à parte: local provisório no 1º turno (usado ≠ original) e, no 2º, o local original, sem provisório."""
+    if a is None:
+        return False
+    ok_ = lambda x: x not in ("", "-1", None)
+    return ok_(a["o"]) and a["c"] != a["o"] and b["c"] == a["o"] and (not ok_(b["o"]) or b["o"] == b["c"])
+
+
 def testar_uf(caminho_csv):
     falhas, avisos = [], []
     ok = lambda cond, msg: cond or falhas.append(msg)
@@ -72,7 +80,7 @@ def testar_uf(caminho_csv):
                 eleitores[k] = int(r["QT_ELEITOR_SECAO"])
             ag = int(r["NR_SECAO_PRINCIPAL"]) if r["DS_TIPO_SECAO_AGREGADA"] == "Agregada" else -1
             t[r["NR_TURNO"]][k] = (r["NR_LOCAL_VOTACAO"], norm(r["NM_LOCAL_VOTACAO"]), norm(r["NM_MUNICIPIO"]), r["CD_MUNICIPIO"], ag,
-                                   {"c": r["NR_LOCAL_VOTACAO"], "n": r["NM_LOCAL_VOTACAO"], "e": r["DS_ENDERECO"],
+                                   {"c": r["NR_LOCAL_VOTACAO"], "o": r["NR_LOCAL_VOTACAO_ORIGINAL"], "n": r["NM_LOCAL_VOTACAO"], "e": r["DS_ENDERECO"],
                                     "lat": _coord(r["NR_LATITUDE"]), "lon": _coord(r["NR_LONGITUDE"])})
     D = json.load(open(RAIZ / "data" / f"{uf}.json", encoding="utf-8"))
 
@@ -118,12 +126,15 @@ def testar_uf(caminho_csv):
     for k, l in js.items():
         a, b = ef("1", k), ef("2", k)
         esp = situacao_esperada(a[5] if a else None, b[5])
+        if esp in (1, 2) and volta_esperada(a[5] if a else None, b[5]):
+            esp = 5
         cont[esp] = cont.get(esp, 0) + 1
         nm = t["2"][k][2]
-        m = est["mun"].setdefault(nm, [0, 0, 0, 0, 0, 0])   # seções, eleitores, mudou seç./el., confira seç./el.
+        m = est["mun"].setdefault(nm, [0, 0, 0, 0, 0, 0, 0, 0])   # seções, eleitores, mudou, confira, volta (seç./el.)
         m[0] += 1; m[1] += eleitores[k]
-        if esp in (1, 2):
-            m[2 if esp == 1 else 4] += 1; m[3 if esp == 1 else 5] += eleitores[k]
+        if esp in (1, 2, 5):
+            i = {1: 2, 2: 4, 5: 6}[esp]
+            m[i] += 1; m[i + 1] += eleitores[k]
         if esp != l[6]:
             difs.append((k, esp, l[6]))
     ok(not difs, f"{len(difs)} seções com situação diferente da recalculada, ex.: {difs[:3]}")
@@ -152,12 +163,12 @@ def testar_uf(caminho_csv):
     sem = sum(1 for i in usados if D["locais"][i]["lat"] is None)
     if sem:
         avisos.append(f"{sem} locais do 2º turno sem ponto no mapa (sem coordenada ou coordenada removida)")
-    avisos.append("situações: " + ", ".join(f"{['igual','mudou','confira','nome','sem 1º turno'][k]} {v}" for k, v in sorted(cont.items())))
+    avisos.append("situações: " + ", ".join(f"{['igual','mudou','confira','nome','sem 1º turno','volta do provisório'][k]} {v}" for k, v in sorted(cont.items())))
     return uf, len(js), len(esperado), falhas, avisos, est
 
 
 def testar_mudancas():
-    """data/mudancas.json deve listar exatamente as seções MUDOU (1) e CONFIRA (2) de todas as UFs."""
+    """data/mudancas.json deve listar exatamente as seções MUDOU (1), CONFIRA (2) e VOLTA (5) de todas as UFs."""
     falhas = []
     caminho = RAIZ / "data" / "mudancas.json"
     if not caminho.exists():
@@ -168,7 +179,7 @@ def testar_mudancas():
         D = json.load(open(RAIZ / "data" / f"{u['uf']}.json", encoding="utf-8"))
         por = {(l[0], l[1]): l for l in D["secoes"]}
         for l in D["secoes"]:
-            if l[6] in (1, 2):
+            if l[6] in (1, 2, 5):
                 e = por.get((l[0], l[5]), l) if l[5] > 0 else l
                 esperado[(u["uf"], l[0], l[1])] = (l[6], D["locais"][e[3]]["n"], D["locais"][e[4]]["n"], D["municipios"][l[2]])
     obtido = {}
@@ -184,9 +195,10 @@ def testar_mudancas():
     if difs:
         falhas.append(f"{len(difs)} seções com situação, local ou município diferente, ex.: {difs[:3]}")
     t = M.get("total", {})
-    if t.get("mudou") != sum(1 for v in esperado.values() if v[0] == 1) or t.get("confira") != sum(1 for v in esperado.values() if v[0] == 2):
+    if (t.get("mudou") != sum(1 for v in esperado.values() if v[0] == 1) or t.get("confira") != sum(1 for v in esperado.values() if v[0] == 2)
+            or t.get("volta") != sum(1 for v in esperado.values() if v[0] == 5)):
         falhas.append(f"totais de mudancas.json não conferem: {t}")
-    print(f"mudancas.json: {len(M['locais'])} locais, {t.get('mudou')} mudaram, {t.get('confira')} para conferir — {'OK' if not falhas else 'FALHOU'}")
+    print(f"mudancas.json: {len(M['locais'])} locais, {t.get('mudou')} mudaram, {t.get('confira')} para conferir, {t.get('volta')} voltam do provisório — {'OK' if not falhas else 'FALHOU'}")
     return falhas
 
 
@@ -205,8 +217,8 @@ def testar_estatisticas(ests, completo):
     if not caminho.exists():
         return ["data/estatisticas.json não existe"]
     E = json.load(open(caminho, encoding="utf-8"))
-    campos = lambda m: [m["secoes"], m["eleitores"], m["mudou_sec"], m["mudou_el"], m["confira_sec"], m["confira_el"]]
-    soma = lambda vs: [sum(x) for x in zip(*vs)] if vs else [0] * 6
+    campos = lambda m: [m["secoes"], m["eleitores"], m["mudou_sec"], m["mudou_el"], m["confira_sec"], m["confira_el"], m["volta_sec"], m["volta_el"]]
+    soma = lambda vs: [sum(x) for x in zip(*vs)] if vs else [0] * 8
     por_uf_json = {u["uf"]: u for u in E["ufs"]}
     reg_esp = {}
     for est in ests:
@@ -221,7 +233,7 @@ def testar_estatisticas(ests, completo):
         reg_esp.setdefault(_REGIAO[uf], []).append(esp)
         # municípios com alguma mudança
         obt = {norm(m["mun"]): campos(m) for m in E["municipios"] if m["uf"] == uf}
-        espm = {nm: v for nm, v in est["mun"].items() if v[2] or v[4]}
+        espm = {nm: v for nm, v in est["mun"].items() if v[2] or v[4] or v[6]}
         if obt != espm:
             dif = [nm for nm in set(obt) | set(espm) if obt.get(nm) != espm.get(nm)]
             falhas.append(f"{uf}: {len(dif)} municípios com números diferentes, ex.: {dif[:3]}")

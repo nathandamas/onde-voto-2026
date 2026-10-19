@@ -28,6 +28,7 @@ A regra fica em `scripts/gerar_dados.py` e é conferida por uma segunda implemen
 |---|---|
 | **Seu local mudou** | O código do local é diferente nos dois turnos e o endereço também; ou o código é o mesmo, mas o endereço mudou e as coordenadas não confirmam o mesmo lugar (ou não existem). |
 | **Confira o endereço** | O código mudou, mas o endereço é o mesmo; ou o código é o mesmo, o endereço mudou e as coordenadas ficam a menos de 200 m. Pode ser o mesmo prédio. |
+| **Local provisório no 1º turno** | No 1º turno a seção votou em local provisório (`NR_LOCAL_VOTACAO` diferente de `NR_LOCAL_VOTACAO_ORIGINAL`) e no 2º turno o cadastro a devolve ao local original. Segundo nota do TSE de 19/10/2026, pode ser só registro pendente: a zona eleitoral ainda pode manter a seção no local do 1º turno. Contado à parte de "mudou". |
 | **Mesmo local, só o nome mudou** | Mesmo código e mesmo endereço, nome diferente (por exemplo, "E. E." e "Escola Estadual"). |
 | **Mesmo local do 1º turno** | Mesmo código, nome e endereço. |
 
@@ -54,7 +55,19 @@ Ao mudar `assets/estilo.css` ou algum `.js`, troque o `?v=` dos links nas três 
 
 O site precisa ser servido por HTTP. Abrindo o `index.html` direto do disco, o navegador bloqueia a leitura dos dados. Para testar localmente: `python -m http.server` e abra `http://localhost:8000`.
 
-## Atualizar os dados
+## Atualização automática (GitHub Actions)
+
+`.github/workflows/atualizar-dados.yml` roda a cada 2 horas e também pelo botão **Run workflow** na aba **Actions**. Ele chama `scripts/atualizar.py`, que:
+
+1. baixa `eleitorado_local_votacao_2026.zip` do Portal de Dados Abertos do TSE;
+2. para sem publicar nada se o arquivo for igual ao da última atualização (`data/versao.json`);
+3. recusa arquivo corrompido, incompleto (sem alguma UF), mais antigo que o publicado ou com variação de mais de 2% no total de seções;
+4. roda `gerar_dados.py` e `testar_dados.py`; se algo falhar, devolve `data/` ao que era e o workflow termina com erro (o GitHub avisa por e-mail);
+5. se tudo passar, faz o commit de `data/` e o GitHub Pages republica.
+
+Se o TSE mudar o endereço do zip, crie a variável `TSE_URL` em **Settings → Secrets and variables → Actions → Variables**; o workflow já a usa. Depois da eleição, desative o workflow em **Actions → Atualizar dados do TSE → ⋯ → Disable workflow**.
+
+## Atualizar os dados à mão
 
 1. Baixe `eleitorado_local_votacao_2026.zip` no portal de dados abertos do TSE e extraia numa pasta.
 2. Rode (Python 3.9+, sem dependências):
@@ -89,6 +102,9 @@ data/ufs.json              índice dos estados (totais, data, enquadramento do m
 data/<UF>.json             seções e locais de cada estado (ZZ = exterior)
 data/mudancas.json         locais que recebem seções que mudaram, em todo o país
 data/estatisticas.json     totais por região, estado e município; distâncias
+data/versao.json           data e hash do arquivo do TSE usado na última atualização
+.github/workflows/         atualização automática (GitHub Actions)
+scripts/atualizar.py       baixa, confere, gera e testa (usado pela automação)
 data/contornos/<UF>.geojson limites municipais simplificados (só usados sem mapa base)
 lib/                       MapLibre GL JS 4.7.1 (BSD-3, ver LICENSE-maplibre.txt)
 scripts/gerar_dados.py     gera data/ a partir dos CSVs do TSE

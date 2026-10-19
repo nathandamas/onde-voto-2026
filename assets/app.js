@@ -21,7 +21,7 @@ const guarda = { ler(k) { try { return localStorage.getItem(k); } catch { return
 
 // linha: [zona, seção, município, local 2º turno, local 1º turno (-1), seção principal se agregada (-1), situação]
 const Z = 0, S = 1, M = 2, L2 = 3, L1 = 4, AG = 5, ST = 6;
-const IGUAL = 0, MUDOU = 1, CONFIRA = 2, NOME = 3, SEM1T = 4;
+const IGUAL = 0, MUDOU = 1, CONFIRA = 2, NOME = 3, SEM1T = 4, VOLTA = 5;
 
 let UFS = [], UF = null, D = null, mapa = null, popup = null, comBase = false, cidadeSel = null, nomes = [], pedido = 0;
 let porMun = new Map(), porZS = new Map(), secoesDoLocal = new Map();
@@ -35,7 +35,7 @@ function efetiva(l) {
 function situacao(l) {
   const e = efetiva(l);
   const st = l[ST];
-  return { e, local2: e[L2], local1: e[L1], st, mudou: st === MUDOU, atencao: st === MUDOU || st === CONFIRA };
+  return { e, local2: e[L2], local1: e[L1], st, mudou: st === MUDOU, atencao: st === MUDOU || st === CONFIRA || st === VOLTA };
 }
 
 /* ---------- início ---------- */
@@ -183,16 +183,17 @@ const CABECALHOS = {
   [CONFIRA]: ["mudou", "Confira o endereço", "O cadastro do TSE mostra para o seu local um nome ou endereço diferente do 1º turno. Pode ser o mesmo prédio, mas confira antes de sair."],
   [NOME]: ["igual", "Mesmo local do 1º turno", "Segundo o cadastro do TSE, sua seção vota no mesmo lugar. Só o nome do local foi atualizado."],
   [IGUAL]: ["igual", "Mesmo local do 1º turno", "Segundo o cadastro do TSE, sua seção vota no mesmo lugar."],
-  [SEM1T]: ["igual", "Seu local no 2º turno", "O cadastro do TSE não traz o local desta seção no 1º turno."]
+  [SEM1T]: ["igual", "Seu local no 2º turno", "O cadastro do TSE não traz o local desta seção no 1º turno."],
+  [VOLTA]: ["mudou", "Atenção: confira no e-Título", "No 1º turno sua seção votou em um local provisório. O cadastro do TSE indica a volta ao local original no 2º turno, mas a zona eleitoral ainda pode manter o local do 1º turno."]
 };
 
 function mostrarResultado(l) {
   const st = situacao(l), L = D.locais[st.local2], cidade = D.municipios[l[M]];
   const [classe, titulo, sub] = CABECALHOS[st.st] || CABECALHOS[IGUAL];
   let extra = "";
-  if (st.st === MUDOU || st.st === CONFIRA || st.st === NOME) {
+  if (st.st === MUDOU || st.st === CONFIRA || st.st === NOME || st.st === VOLTA) {
     const A = D.locais[st.local1];
-    const rot = st.st === MUDOU ? "No 1º turno você votou em" : "No 1º turno o cadastro mostrava";
+    const rot = st.st === MUDOU ? "No 1º turno você votou em" : st.st === VOLTA ? "No 1º turno você votou no local provisório" : "No 1º turno o cadastro mostrava";
     extra += `<div class="local antes${st.st === MUDOU ? " riscado" : ""}"><span class="rotulo">${rot}</span><span class="nome">${esc(A.n)}</span><span class="end">${esc(enderecoTexto(A, ""))}</span></div>`;
   }
   if (l[AG] > 0) extra += `<p class="info">Sua seção (${l[S]}) vota junto com a seção ${l[AG]}, no mesmo local.</p>`;
@@ -201,7 +202,7 @@ function mostrarResultado(l) {
   const res = $("#resultado");
   res.innerHTML = `<div class="res-cab ${classe}"><b>${titulo}</b><small>${sub}</small></div>
     <div class="res-corpo">
-      <div class="local"><span class="rotulo">No 2º turno, 25/10, você vota em</span>
+      <div class="local"><span class="rotulo">${st.st === VOLTA ? "Pelo cadastro atual do TSE, no 2º turno a seção volta para" : "No 2º turno, 25/10, você vota em"}</span>
         <span class="nome">${esc(L.n)}</span><span class="end">${esc(enderecoTexto(L, cidade))}</span>
         <span class="rotulo" style="margin-top:6px">Zona ${l[Z]} · Seção ${l[S]}</span></div>
       ${extra}
@@ -246,8 +247,8 @@ function mostrarCidade(m) {
     box.innerHTML = `<details open><summary>${total} seç${total > 1 ? "ões" : "ão"} de ${esc(nome)} com mudança de local ou de endereço</summary><ul>${[...grupos.values()].map(g => {
       const N = D.locais[g.st.local2], A = D.locais[g.st.local1];
       g.s.sort((a, b) => a - b);
-      const tipo = g.st.mudou ? "Mudou de local" : "Confira o endereço";
-      return `<li><span class="selo-mini${g.st.mudou ? " forte" : ""}">${tipo}</span><br><span class="secs">Zona ${[...g.z].join(", ")} · seç${g.s.length > 1 ? "ões" : "ão"} ${g.s.join(", ")}</span><br><b>${esc(N.n)}</b><br><span class="suave">No 1º turno: ${esc(A.n)}</span></li>`;
+      const tipo = g.st.mudou ? "Mudou de local" : g.st.st === VOLTA ? "Local provisório no 1º turno" : "Confira o endereço";
+      return `<li><span class="selo-mini${g.st.mudou || g.st.st === VOLTA ? " forte" : ""}">${tipo}</span><br><span class="secs">Zona ${[...g.z].join(", ")} · seç${g.s.length > 1 ? "ões" : "ão"} ${g.s.join(", ")}</span><br><b>${esc(N.n)}</b><br><span class="suave">No 1º turno: ${esc(A.n)}</span></li>`;
     }).join("")}</ul></details>`;
   }
   box.hidden = false;

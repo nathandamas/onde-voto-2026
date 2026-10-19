@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
 <link rel="stylesheet" href="lib/maplibre-gl.css">
-<link rel="stylesheet" href="assets/estilo.css?v=2026-10-19f">
+<link rel="stylesheet" href="assets/estilo.css?v=2026-10-19g">
 </head>
 <body class="pagina-mudancas">
 <header class="topo">
@@ -32,6 +32,7 @@
     <fieldset class="campo situacoes">
       <legend>Mostrar</legend>
       <label class="opcao"><input type="checkbox" id="f-mudou" checked> <span class="pt pt-mud"></span> Mudou de local</label>
+      <label class="opcao"><input type="checkbox" id="f-volta" checked> <span class="pt pt-volta"></span> Local provisório no 1º turno</label>
       <label class="opcao"><input type="checkbox" id="f-confira" checked> <span class="pt pt-conf"></span> Confira o endereço</label>
     </fieldset>
     <p id="erro" class="erro" role="alert" hidden></p>
@@ -42,6 +43,7 @@
       <h2 id="titulo-mapa">Mapa</h2>
       <ul class="legenda">
         <li><span class="pt pt-mud"></span>Recebe seções que mudaram de local</li>
+        <li><span class="pt pt-volta"></span>Seções que votaram em local provisório no 1º turno e voltam ao original (pode mudar)</li>
         <li><span class="pt pt-conf"></span>Só nome ou endereço diferente no cadastro</li>
         <li>Círculo maior = mais seções</li>
       </ul>
@@ -63,11 +65,11 @@
 </main>
 
 <footer class="rodape">
-  <p><b>De onde vêm os dados.</b> Cadastro de locais de votação do Tribunal Superior Eleitoral, conjunto <a href="https://dadosabertos.tse.jus.br/dataset/eleitorado-2026" target="_blank" rel="noopener">Eleitorado por local de votação 2026</a>, arquivos gerados em <span id="data-tse">—</span>. "Mudou de local": o local da seção no 2º turno é diferente do 1º turno. "Confira o endereço": o cadastro mostra nome ou endereço diferente para o local, que pode ser o mesmo prédio.</p>
+  <p><b>De onde vêm os dados.</b> Cadastro de locais de votação do Tribunal Superior Eleitoral, conjunto <a href="https://dadosabertos.tse.jus.br/dataset/eleitorado-2026" target="_blank" rel="noopener">Eleitorado por local de votação 2026</a>, arquivos gerados em <span id="data-tse">—</span>. "Mudou de local": o local da seção no 2º turno é diferente do 1º turno. "Confira o endereço": o cadastro mostra nome ou endereço diferente para o local, que pode ser o mesmo prédio. "Local provisório no 1º turno": a seção votou em local provisório no 1º turno e o cadastro a devolve ao local original; segundo o TSE, a zona eleitoral ainda pode registrar que ela continua no local do 1º turno.</p>
   <p>Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores do OpenStreetMap</a>, © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>. <span id="repo-txt" hidden>Código aberto no <a id="link-repo" href="#" target="_blank" rel="noopener">GitHub</a>.</span></p>
 </footer>
 
 <script src="lib/maplibre-gl.js"></script>
-<script src="assets/mudancas.js?v=2026-10-19f"></script>
+<script src="assets/mudancas.js?v=2026-10-19g"></script>
 </body>
 </html>

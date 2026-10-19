@@ -139,6 +139,10 @@ input[type=text]:disabled{opacity:.55;cursor:not-allowed}
 .opcao input{width:22px;height:22px;accent-color:var(--petroleo);margin:0}
 .opcao .pt{margin-right:0}
 .pt-conf{background:#fde7c4;border-color:#a14507}
+.pt-volta{background:#8b5cf6;border-color:#3b0764}
+.selo-mini.volta{background:#f1ebff;color:#5b21b6;border-color:#c4b5fd}
+:root[data-theme="dark"] .selo-mini.volta{background:#2a1f45;color:#d8c8ff;border-color:#5b3fa0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .selo-mini.volta{background:#2a1f45;color:#d8c8ff;border-color:#5b3fa0}}
 .lista-mud{display:grid;gap:8px;min-width:0}
 .lista-mud h2{font-size:24px}
 .uf-titulo{font-family:var(--f-titulo);font-size:22px;margin:12px 0 0}

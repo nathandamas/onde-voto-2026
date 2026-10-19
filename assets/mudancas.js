@@ -10,7 +10,7 @@ const CONFIG = Object.assign({
   brasil: [[-74.0, -33.8], [-34.7, 5.3]]
 }, window.CONFIG_LOCAL || {});
 
-const MUDOU = 1, CONFIRA = 2;
+const MUDOU = 1, CONFIRA = 2, VOLTA = 5;
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = n => n.toLocaleString("pt-BR");
@@ -19,11 +19,11 @@ const VAZIO = { type: "FeatureCollection", features: [] };
 let M = null, UFS = [], mapa = null, popup = null, comBase = false, visiveis = [];
 
 function filtro() {
-  return { uf: $("#f-uf").value, mudou: $("#f-mudou").checked, confira: $("#f-confira").checked };
+  return { uf: $("#f-uf").value, mudou: $("#f-mudou").checked, confira: $("#f-confira").checked, volta: $("#f-volta").checked };
 }
 // seções de um local que passam pelos filtros de situação
 function secoesVisiveis(L, f) {
-  return L.s.filter(x => (x[2] === MUDOU && f.mudou) || (x[2] === CONFIRA && f.confira));
+  return L.s.filter(x => (x[2] === MUDOU && f.mudou) || (x[2] === CONFIRA && f.confira) || (x[2] === VOLTA && f.volta));
 }
 function nomeUF(uf) { return uf === "ZZ" ? "Exterior" : (UFS.find(u => u.uf === uf)?.nome || uf); }
 function endereco(L) { return [L.e, L.b, L.mun, L.uf !== "ZZ" ? L.uf : ""].filter(Boolean).join(", "); }
@@ -61,7 +61,7 @@ async function iniciar() {
   const inicial = location.hash.slice(1).toUpperCase();
   if (porUF[inicial]) sel.value = inicial;
 
-  for (const id of ["#f-uf", "#f-mudou", "#f-confira"]) $(id).addEventListener("change", () => aplicar(true));
+  for (const id of ["#f-uf", "#f-mudou", "#f-confira", "#f-volta"]) $(id).addEventListener("change", () => aplicar(true));
   aplicar(false);
   montarMapa();
 }
@@ -76,15 +76,18 @@ function aplicar(enquadrar) {
   });
   const nM = visiveis.reduce((a, v) => a + v.s.filter(x => x[2] === MUDOU).length, 0);
   const nC = visiveis.reduce((a, v) => a + v.s.filter(x => x[2] === CONFIRA).length, 0);
+  const nV = visiveis.reduce((a, v) => a + v.s.filter(x => x[2] === VOLTA).length, 0);
   const onde = f.uf ? (f.uf === "ZZ" ? "no exterior" : `em ${nomeUF(f.uf)}`) : "no Brasil e no exterior";
-  $("#resumo").innerHTML = `<b>${fmt(nM)}</b> seç${nM === 1 ? "ão mudou" : "ões mudaram"} de local e <b>${fmt(nC)}</b> ${nC === 1 ? "precisa" : "precisam"} de conferência, em <b>${fmt(visiveis.length)}</b> loca${visiveis.length === 1 ? "l" : "is"} ${onde}.`;
+  $("#resumo").innerHTML = `<b>${fmt(nM)}</b> seç${nM === 1 ? "ão mudou" : "ões mudaram"} de local, ` +
+    `<b>${fmt(nV)}</b> ${nV === 1 ? "votou em local provisório no 1º turno e volta" : "votaram em local provisório no 1º turno e voltam"} ao local original ` +
+    `e <b>${fmt(nC)}</b> ${nC === 1 ? "precisa" : "precisam"} de conferência, em <b>${fmt(visiveis.length)}</b> loca${visiveis.length === 1 ? "l" : "is"} ${onde}.`;
   try { history.replaceState(null, "", f.uf ? "#" + f.uf : location.pathname); } catch { /* ignora */ }
   desenharLista();
   atualizarMapa(enquadrar);
 }
 
 /* ---------- lista ---------- */
-const ROTULO = { [MUDOU]: "Mudou de local", [CONFIRA]: "Confira o endereço" };
+const ROTULO = { [MUDOU]: "Mudou de local", [CONFIRA]: "Confira o endereço", [VOLTA]: "Local provisório no 1º turno" };
 function desenharLista() {
   const box = $("#lista");
   if (!visiveis.length) { box.innerHTML = `<p class="vazio">Nenhum local com os filtros escolhidos.</p>`; return; }
@@ -92,13 +95,14 @@ function desenharLista() {
   for (const { i, L, s } of visiveis) {
     if (L.uf !== ufAtual) { if (ufAtual !== null) html += "</div>"; html += `<h3 class="uf-titulo">${esc(nomeUF(L.uf))}</h3><div class="uf-grupo">`; ufAtual = L.uf; munAtual = null; }
     if (L.mun !== munAtual) { html += `<p class="mun-titulo">${esc(L.mun)}</p>`; munAtual = L.mun; }
-    const nM = s.filter(x => x[2] === MUDOU).length, nC = s.length - nM;
-    const partes = [nM ? `${nM} mud${nM > 1 ? "aram" : "ou"} de local` : "", nC ? `${nC} para conferir` : ""].filter(Boolean).join(" · ");
+    const nM = s.filter(x => x[2] === MUDOU).length, nV = s.filter(x => x[2] === VOLTA).length, nC = s.length - nM - nV;
+    const partes = [nM ? `${nM} mud${nM > 1 ? "aram" : "ou"} de local` : "", nV ? `${nV} ${nV > 1 ? "voltam" : "volta"} do local provisório` : "",
+      nC ? `${nC} para conferir` : ""].filter(Boolean).join(" · ");
     html += `<article class="card-mud" id="l${i}">
       <b class="nome">${esc(L.n)}</b>
       <span class="end">${esc(endereco(L))}</span>
       <details><summary>${s.length} seç${s.length > 1 ? "ões" : "ão"}: ${partes}</summary>
-        <ul>${s.map(x => `<li><span class="selo-mini${x[2] === MUDOU ? " forte" : ""}">${ROTULO[x[2]]}</span> <b>Zona ${x[0]} · Seção ${x[1]}</b><br><span class="suave">No 1º turno: ${esc(x[3])}${x[4] ? " — " + esc(x[4]) : ""}</span></li>`).join("")}</ul>
+        <ul>${s.map(x => `<li><span class="selo-mini${x[2] === MUDOU ? " forte" : x[2] === VOLTA ? " volta" : ""}">${ROTULO[x[2]]}</span> <b>Zona ${x[0]} · Seção ${x[1]}</b><br><span class="suave">No 1º turno: ${esc(x[3])}${x[4] ? " — " + esc(x[4]) : ""}</span></li>`).join("")}</ul>
       </details>
       <div class="acoes-mini">
         ${L.lat != null ? `<button type="button" data-ver="${i}">Ver no mapa</button>` : `<span class="suave">Sem ponto no mapa</span>`}
@@ -155,9 +159,9 @@ async function montarMapa() {
     m.addLayer({ id: "pts", type: "circle", source: "pts",
       paint: {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, raio(1), 10, raio(1.5), 15, raio(2)],
-        "circle-color": ["match", ["get", "tipo"], 1, "#f59e0b", "#fde7c4"],
-        "circle-stroke-color": ["match", ["get", "tipo"], 1, "#13262b", "#a14507"],
-        "circle-stroke-width": ["match", ["get", "tipo"], 1, 1.4, 2.2],
+        "circle-color": ["match", ["get", "tipo"], 1, "#f59e0b", 5, "#8b5cf6", "#fde7c4"],
+        "circle-stroke-color": ["match", ["get", "tipo"], 1, "#13262b", 5, "#3b0764", "#a14507"],
+        "circle-stroke-width": ["match", ["get", "tipo"], 1, 1.4, 5, 1.4, 2.2],
         "circle-opacity": 0.95
       } });
     m.addSource("sel", { type: "geojson", data: VAZIO });
@@ -178,7 +182,7 @@ async function atualizarMapa(enquadrar) {
   popup?.remove(); mapa.getSource("sel").setData(VAZIO);
   const feats = visiveis.filter(v => v.L.lat != null).map(({ i, L, s }) => ({
     type: "Feature", geometry: { type: "Point", coordinates: [L.lon, L.lat] },
-    properties: { i, ns: s.length, tipo: s.some(x => x[2] === MUDOU) ? 1 : 2 }
+    properties: { i, ns: s.length, tipo: s.some(x => x[2] === MUDOU) ? 1 : s.some(x => x[2] === VOLTA) ? 5 : 2 }
   }));
   // pontos menores por cima dos maiores
   feats.sort((a, b) => b.properties.ns - a.properties.ns);
@@ -206,7 +210,7 @@ function abrirPopup(i) {
   const max = 6;
   popup.setLngLat([L.lon, L.lat]).setHTML(
     `<b>${esc(L.n)}</b><br>${esc(endereco(L))}
-     <p style="margin:8px 0 0;font-size:14px">${s.slice(0, max).map(x => `<b>Zona ${x[0]} · Seção ${x[1]}</b> <span style="color:${x[2] === MUDOU ? "#92400e" : "#4e6268"}">(${x[2] === MUDOU ? "mudou" : "conferir"})</span><br>no 1º turno: ${esc(x[3])}`).join("<br>")}
+     <p style="margin:8px 0 0;font-size:14px">${s.slice(0, max).map(x => `<b>Zona ${x[0]} · Seção ${x[1]}</b> <span style="color:${x[2] === MUDOU ? "#92400e" : x[2] === VOLTA ? "#5b21b6" : "#4e6268"}">(${x[2] === MUDOU ? "mudou" : x[2] === VOLTA ? "volta do provisório" : "conferir"})</span><br>no 1º turno: ${esc(x[3])}`).join("<br>")}
      ${s.length > max ? `<br>… e mais ${s.length - max}` : ""}</p>
      <p style="margin:8px 0 0"><a href="#l${i}" data-lista="${i}">Ver na lista</a> · <a href="${linkGoogle(L)}" target="_blank" rel="noopener">Como chegar</a></p>`).addTo(mapa);
   popup.getElement().querySelector("[data-lista]")?.addEventListener("click", e => {

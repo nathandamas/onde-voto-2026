@@ -59,7 +59,7 @@ async function iniciar() {
   tabelaUFs();
 
   const sel = $("#c-uf");
-  [...E.ufs].filter(u => u.mudou_sec || u.confira_sec)
+  [...E.ufs].filter(u => u.mudou_sec || u.confira_sec || u.volta_sec)
     .sort((a, b) => (a.uf === "ZZ") - (b.uf === "ZZ") || a.nome.localeCompare(b.nome, "pt-BR"))
     .forEach(u => { const o = document.createElement("option"); o.value = u.uf; o.textContent = u.uf === "ZZ" ? "Exterior" : `${u.nome} (${u.uf})`; sel.appendChild(o); });
   for (const id of ["#c-uf", "#c-ordem"]) $(id).addEventListener("change", () => { cidadesTodas = false; ranking(); });
@@ -83,11 +83,14 @@ function destaques() {
   ];
   $("#destaques").innerHTML = cartoes.map(([n, t, s]) =>
     `<div class="destaque"><div class="d-num">${n}</div><div class="d-txt">${t}</div>${s ? `<div class="d-sub">${s}</div>` : ""}</div>`).join("");
-  const nc = $("#nota-confira");
-  if (b.confira_sec) {
-    nc.innerHTML = `<b>Fora dessa conta:</b> ${plural(b.confira_sec, "seção", "seções")} (${plural(b.confira_el, "eleitor", "eleitores")}) ` +
-      `aparece${b.confira_sec === 1 ? "" : "m"} no cadastro com nome ou endereço diferente, mas pode${b.confira_sec === 1 ? "" : "m"} estar no mesmo prédio. ` +
-      `Esses casos ficam na coluna "Confira o endereço" da tabela.`;
+  const nc = $("#nota-confira"), partes = [];
+  if (b.volta_sec) partes.push(`<b>${plural(b.volta_sec, "seção", "seções")}</b> (${plural(b.volta_el, "eleitor", "eleitores")}) ` +
+    `${b.volta_sec === 1 ? "votou" : "votaram"} em local provisório no 1º turno e, pelo cadastro, ${b.volta_sec === 1 ? "volta" : "voltam"} ao local original. ` +
+    `Segundo o TSE, isso pode ser só registro pendente: a zona eleitoral ainda pode manter essas seções no local do 1º turno.`);
+  if (b.confira_sec) partes.push(`<b>${plural(b.confira_sec, "seção", "seções")}</b> (${plural(b.confira_el, "eleitor", "eleitores")}) ` +
+    `aparece${b.confira_sec === 1 ? "" : "m"} no cadastro com nome ou endereço diferente, mas pode${b.confira_sec === 1 ? "" : "m"} estar no mesmo prédio.`);
+  if (partes.length) {
+    nc.innerHTML = `<b>Fora dessa conta:</b> ${partes.join(" ")} Esses casos ficam em colunas próprias da tabela por estado.`;
     nc.hidden = false;
   }
 }
@@ -115,14 +118,14 @@ function barrasRegiaoUF() {
   const zero = E.ufs.filter(u => !u.mudou_sec).map(nomeUF).sort((a, b) => a.localeCompare(b, "pt-BR"));
   const z = $("#ufs-zero");
   z.hidden = !zero.length;
-  z.innerHTML = zero.length ? `<b>Nenhuma seção mudou de local em:</b> ${esc(nomeLista(zero))}.` : "";
+  z.innerHTML = zero.length ? `<b>Nenhuma seção mudou de local em:</b> ${esc(nomeLista(zero))} (sem contar os casos à parte).` : "";
 }
 
 function tabelaUFs() {
   const linhas = E.ufs.filter(u => u.uf !== "ZZ").sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")).concat(E.ufs.filter(u => u.uf === "ZZ"));
-  const linha = (nome, x, cls = "") => `<tr${cls}><th scope="row">${nome}</th><td>${fmt(x.mudou_sec)}</td><td>${fmt(x.mudou_el)}</td><td>${pct(x.mudou_sec, x.secoes)}</td><td>${fmt(x.secoes)}</td><td>${fmt(x.confira_sec)}</td></tr>`;
+  const linha = (nome, x, cls = "") => `<tr${cls}><th scope="row">${nome}</th><td>${fmt(x.mudou_sec)}</td><td>${fmt(x.mudou_el)}</td><td>${pct(x.mudou_sec, x.secoes)}</td><td>${fmt(x.secoes)}</td><td>${fmt(x.volta_sec)}</td><td>${fmt(x.confira_sec)}</td></tr>`;
   $("#t-ufs").innerHTML = `<caption>Seções que mudaram de local, por estado. Role a tabela para os lados no celular.</caption>
-    <thead><tr><th scope="col">Estado</th><th scope="col">Seções que mudaram</th><th scope="col">Eleitores nessas seções</th><th scope="col">Proporção</th><th scope="col">Total de seções</th><th scope="col">Confira o endereço (à parte)</th></tr></thead>
+    <thead><tr><th scope="col">Estado</th><th scope="col">Seções que mudaram</th><th scope="col">Eleitores nessas seções</th><th scope="col">Proporção</th><th scope="col">Total de seções</th><th scope="col">Local provisório no 1º turno (à parte)</th><th scope="col">Confira o endereço (à parte)</th></tr></thead>
     <tbody>${linhas.map(u => linha(u.uf === "ZZ" ? "Exterior" : `${esc(u.nome)} (${u.uf})`, u)).join("")}</tbody>
     <tfoot>${linha("Total", E.brasil, ' class="total"')}</tfoot>`;
 }
@@ -141,7 +144,7 @@ function ranking() {
   const box = $("#ranking");
   box.innerHTML = mostra.map(m => {
     const p = posicao(m), uf_ = m.uf === "ZZ" ? "Exterior" : m.uf;
-    const conf = m.confira_sec ? ` · mais ${fmt(m.confira_sec)} para conferir o endereço` : "";
+    const conf = (m.volta_sec ? ` · mais ${fmt(m.volta_sec)} do local provisório` : "") + (m.confira_sec ? ` · mais ${fmt(m.confira_sec)} para conferir o endereço` : "");
     let val, det;
     if (ordem === "el") { val = `<b>${fmt(m.mudou_el)}</b> eleitores`; det = `${plural(m.mudou_sec, "seção", "seções")} · ${pct(m.mudou_sec, m.secoes)} das seções da cidade`; }
     else if (ordem === "pct") { val = `<b>${pct(m.mudou_sec, m.secoes)}</b> das seções`; det = `${fmt(m.mudou_sec)} de ${fmt(m.secoes)} seções · ${plural(m.mudou_el, "eleitor", "eleitores")}`; }
@@ -154,8 +157,8 @@ function ranking() {
   if (!lista.length) notas.push("<b>Nenhuma seção mudou de local aqui.</b>");
   if (soConfira.length) {
     notas.push(soConfira.length <= 8
-      ? `Só com casos de "confira o endereço": ${esc(nomeLista(soConfira.map(m => `${m.mun} (${m.uf === "ZZ" ? "exterior" : m.uf})`)))}.`
-      : `Outras ${fmt(soConfira.length)} cidades têm só casos de "confira o endereço".`);
+      ? `Só com casos à parte (local provisório no 1º turno ou confira o endereço): ${esc(nomeLista(soConfira.map(m => `${m.mun} (${m.uf === "ZZ" ? "exterior" : m.uf})`)))}.`
+      : `Outras ${fmt(soConfira.length)} cidades têm só casos à parte (local provisório no 1º turno ou confira o endereço).`);
   }
   vazio.innerHTML = notas.join(" ");
   vazio.hidden = !notas.length;

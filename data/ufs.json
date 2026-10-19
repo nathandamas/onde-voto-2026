@@ -5,8 +5,9 @@
 "nome": "Acre",
 "secoes": 2411,
 "eleitores": 614375,
-"mudaram": 8,
+"mudaram": 0,
 "confira": 0,
+"volta": 8,
 "municipios": 22,
 "gerado_tse": [
 "18/10/2026"
@@ -25,8 +26,9 @@
 "nome": "Alagoas",
 "secoes": 7246,
 "eleitores": 2441794,
-"mudaram": 49,
+"mudaram": 1,
 "confira": 8,
+"volta": 48,
 "municipios": 102,
 "gerado_tse": [
 "18/10/2026"
@@ -45,8 +47,9 @@
 "nome": "Amapá",
 "secoes": 1971,
 "eleitores": 577534,
-"mudaram": 41,
+"mudaram": 5,
 "confira": 0,
+"volta": 36,
 "municipios": 16,
 "gerado_tse": [
 "18/10/2026"
@@ -65,8 +68,9 @@
 "nome": "Amazonas",
 "secoes": 8577,
 "eleitores": 2801182,
-"mudaram": 50,
+"mudaram": 0,
 "confira": 0,
+"volta": 50,
 "municipios": 62,
 "gerado_tse": [
 "18/10/2026"
@@ -85,8 +89,9 @@
 "nome": "Bahia",
 "secoes": 37950,
 "eleitores": 11321005,
-"mudaram": 117,
+"mudaram": 5,
 "confira": 61,
+"volta": 112,
 "municipios": 417,
 "gerado_tse": [
 "18/10/2026"
@@ -110,6 +115,7 @@
 "eleitores": 6998494,
 "mudaram": 11,
 "confira": 0,
+"volta": 0,
 "municipios": 184,
 "gerado_tse": [
 "18/10/2026"
@@ -132,6 +138,7 @@
 "eleitores": 2253132,
 "mudaram": 0,
 "confira": 0,
+"volta": 0,
 "municipios": 1,
 "gerado_tse": [
 "18/10/2026"
@@ -152,6 +159,7 @@
 "eleitores": 2990490,
 "mudaram": 7,
 "confira": 7,
+"volta": 0,
 "municipios": 78,
 "gerado_tse": [
 "18/10/2026"
@@ -170,8 +178,9 @@
 "nome": "Goiás",
 "secoes": 16226,
 "eleitores": 5080755,
-"mudaram": 51,
+"mudaram": 0,
 "confira": 20,
+"volta": 51,
 "municipios": 246,
 "gerado_tse": [
 "18/10/2026"
@@ -192,8 +201,9 @@
 "nome": "Maranhão",
 "secoes": 19794,
 "eleitores": 5186562,
-"mudaram": 22,
+"mudaram": 18,
 "confira": 13,
+"volta": 4,
 "municipios": 217,
 "gerado_tse": [
 "18/10/2026"
@@ -214,6 +224,7 @@
 "eleitores": 2638230,
 "mudaram": 8,
 "confira": 0,
+"volta": 0,
 "municipios": 142,
 "gerado_tse": [
 "18/10/2026"
@@ -236,7 +247,8 @@
 "secoes": 7284,
 "eleitores": 2024884,
 "mudaram": 0,
-"confira": 1,
+"confira": 0,
+"volta": 1,
 "municipios": 79,
 "gerado_tse": [
 "18/10/2026"
@@ -257,8 +269,9 @@
 "nome": "Minas Gerais",
 "secoes": 54193,
 "eleitores": 16377659,
-"mudaram": 98,
+"mudaram": 30,
 "confira": 18,
+"volta": 68,
 "municipios": 853,
 "gerado_tse": [
 "18/10/2026"
@@ -279,8 +292,9 @@
 "nome": "Paraná",
 "secoes": 27336,
 "eleitores": 8609026,
-"mudaram": 110,
-"confira": 5,
+"mudaram": 22,
+"confira": 0,
+"volta": 93,
 "municipios": 399,
 "gerado_tse": [
 "18/10/2026"
@@ -299,8 +313,9 @@
 "nome": "Paraíba",
 "secoes": 10845,
 "eleitores": 3247397,
-"mudaram": 89,
+"mudaram": 9,
 "confira": 0,
+"volta": 80,
 "municipios": 223,
 "gerado_tse": [
 "18/10/2026"
@@ -325,6 +340,7 @@
 "eleitores": 6265355,
 "mudaram": 29,
 "confira": 7,
+"volta": 0,
 "municipios": 144,
 "gerado_tse": [
 "18/10/2026"
@@ -346,8 +362,9 @@
 "nome": "Pernambuco",
 "secoes": 22091,
 "eleitores": 7225744,
-"mudaram": 89,
+"mudaram": 6,
 "confira": 0,
+"volta": 83,
 "municipios": 185,
 "gerado_tse": [
 "18/10/2026"
@@ -370,8 +387,9 @@
 "nome": "Piauí",
 "secoes": 11261,
 "eleitores": 2708160,
-"mudaram": 29,
+"mudaram": 22,
 "confira": 0,
+"volta": 7,
 "municipios": 224,
 "gerado_tse": [
 "18/10/2026"
@@ -392,8 +410,9 @@
 "nome": "Rio Grande do Norte",
 "secoes": 8336,
 "eleitores": 2660565,
-"mudaram": 27,
+"mudaram": 18,
 "confira": 16,
+"volta": 9,
 "municipios": 167,
 "gerado_tse": [
 "18/10/2026"
@@ -418,8 +437,9 @@
 "nome": "Rio Grande do Sul",
 "secoes": 27738,
 "eleitores": 8526233,
-"mudaram": 20,
+"mudaram": 13,
 "confira": 3,
+"volta": 7,
 "municipios": 497,
 "gerado_tse": [
 "18/10/2026"
@@ -442,6 +462,7 @@
 "eleitores": 12857000,
 "mudaram": 0,
 "confira": 24,
+"volta": 0,
 "municipios": 92,
 "gerado_tse": [
 "18/10/2026"
@@ -462,6 +483,7 @@
 "eleitores": 1267105,
 "mudaram": 10,
 "confira": 0,
+"volta": 0,
 "municipios": 52,
 "gerado_tse": [
 "18/10/2026"
@@ -485,6 +507,7 @@
 "eleitores": 401496,
 "mudaram": 0,
 "confira": 0,
+"volta": 0,
 "municipios": 15,
 "gerado_tse": [
 "18/10/2026"
@@ -505,6 +528,7 @@
 "eleitores": 5725753,
 "mudaram": 0,
 "confira": 5,
+"volta": 0,
 "municipios": 295,
 "gerado_tse": [
 "18/10/2026"
@@ -526,8 +550,9 @@
 "nome": "Sergipe",
 "secoes": 6067,
 "eleitores": 1740124,
-"mudaram": 70,
+"mudaram": 2,
 "confira": 0,
+"volta": 68,
 "municipios": 75,
 "gerado_tse": [
 "18/10/2026"
@@ -548,8 +573,9 @@
 "nome": "São Paulo",
 "secoes": 103904,
 "eleitores": 34104226,
-"mudaram": 48,
+"mudaram": 24,
 "confira": 47,
+"volta": 24,
 "municipios": 645,
 "gerado_tse": [
 "18/10/2026"
@@ -572,8 +598,9 @@
 "nome": "Tocantins",
 "secoes": 4490,
 "eleitores": 1182307,
-"mudaram": 32,
+"mudaram": 0,
 "confira": 0,
+"volta": 32,
 "municipios": 139,
 "gerado_tse": [
 "18/10/2026"
@@ -597,6 +624,7 @@
 "eleitores": 918876,
 "mudaram": 18,
 "confira": 0,
+"volta": 0,
 "municipios": 186,
 "gerado_tse": [
 "18/10/2026"

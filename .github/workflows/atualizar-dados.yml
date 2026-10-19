@@ -1,0 +1,63 @@
+# Atualiza os dados do site a partir do cadastro do TSE e publica sozinho se os testes passarem.
+# Para testar à mão: aba Actions → "Atualizar dados do TSE" → Run workflow.
+# Depois da eleição (25/10/2026), desative em Actions → "Atualizar dados do TSE" → ⋯ → Disable workflow.
+name: Atualizar dados do TSE
+
+on:
+  workflow_dispatch:
+    inputs:
+      forcar:
+        description: "Regerar mesmo se o arquivo do TSE não mudou"
+        type: boolean
+        default: false
+  schedule:
+    # a cada 2 horas, no minuto 17 (o horário do cron é UTC; o GitHub pode atrasar alguns minutos)
+    - cron: "17 */2 * * *"
+
+permissions:
+  contents: write   # para fazer o commit dos dados novos
+  pages: write      # para pedir a republicação do GitHub Pages
+
+concurrency:
+  group: atualizar-dados
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Baixar do TSE, gerar e testar
+        id: dados
+        env:
+          TSE_URL: ${{ vars.TSE_URL }}   # opcional; vazio = endereço padrão do TSE
+        run: python scripts/atualizar.py ${{ inputs.forcar && '--forcar' || '' }}
+
+      - name: Publicar os dados novos
+        if: steps.dados.outputs.mudou == 'sim'
+        env:
+          RESUMO: ${{ steps.dados.outputs.resumo }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "Nada mudou em data/."
+            exit 0
+          fi
+          git commit -m "Dados do TSE atualizados automaticamente" -m "$RESUMO"
+          git pull --rebase origin main
+          git push origin main
+
+      - name: Pedir a republicação do site
+        if: steps.dados.outputs.mudou == 'sim'
+        continue-on-error: true   # o push normalmente já dispara; isto é só garantia
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Não foi possível pedir a republicação; o push deve bastar."
