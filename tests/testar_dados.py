@@ -235,7 +235,7 @@ def testar_estatisticas(ests, completo):
         if len(E["ufs"]) != len(ests):
             falhas.append(f"estatisticas.json tem {len(E['ufs'])} UFs; foram testadas {len(ests)}")
     # distâncias: conta própria (fórmula equiretangular, que difere da usada no script por centímetros nesta escala)
-    ds = []
+    ds, ds_reg, sem_reg = [], {}, {}
     for u in E["ufs"]:
         D = json.load(open(RAIZ / "data" / f"{u['uf']}.json", encoding="utf-8"))
         por = {(l[0], l[1]): l for l in D["secoes"]}
@@ -245,10 +245,12 @@ def testar_estatisticas(ests, completo):
             e = por.get((l[0], l[5]), l) if l[5] > 0 else l
             a, b = D["locais"][e[4]], D["locais"][e[3]]
             if None in (a["lat"], b["lat"]):
+                sem_reg[_REGIAO[u["uf"]]] = sem_reg.get(_REGIAO[u["uf"]], 0) + 1
                 continue
             dy = (b["lat"] - a["lat"]) * 111195
             dx = (b["lon"] - a["lon"]) * 111195 * math.cos(math.radians((a["lat"] + b["lat"]) / 2))
             ds.append(math.hypot(dx, dy))
+            ds_reg.setdefault(_REGIAO[u["uf"]], []).append(ds[-1])
     dist = E["distancia"]
     if dist["com"] != len(ds) or dist["com"] + dist["sem"] != E["brasil"]["mudou_sec"]:
         falhas.append(f"distância: {dist['com']} com e {dist['sem']} sem; recontado {len(ds)} com")
@@ -263,6 +265,20 @@ def testar_estatisticas(ests, completo):
         ds.sort(); med = ds[len(ds) // 2] if len(ds) % 2 else (ds[len(ds) // 2 - 1] + ds[len(ds) // 2]) / 2
         if abs(med - dist["mediana_m"]) > 2:
             falhas.append(f"mediana {dist['mediana_m']} m, recontado {med:.0f} m")
+    # distância típica por região: recontada e em ordem da maior para a menor
+    pr = dist.get("por_regiao", [])
+    if {x["regiao"] for x in pr} != set(_REGIAO.values()):
+        falhas.append(f"por_regiao com regiões {[x['regiao'] for x in pr]}")
+    for x in pr:
+        v = sorted(ds_reg.get(x["regiao"], []))
+        if x["com"] != len(v) or x["sem"] != sem_reg.get(x["regiao"], 0):
+            falhas.append(f"região {x['regiao']}: {x['com']} com e {x['sem']} sem; recontado {len(v)} e {sem_reg.get(x['regiao'], 0)}")
+        med = (v[len(v) // 2] if len(v) % 2 else (v[len(v) // 2 - 1] + v[len(v) // 2]) / 2) if v else None
+        if (med is None) != (x["mediana_m"] is None) or (med is not None and abs(med - x["mediana_m"]) > 2):
+            falhas.append(f"região {x['regiao']}: mediana {x['mediana_m']} m, recontado {med}")
+    meds = [x["mediana_m"] for x in pr if x["mediana_m"] is not None]
+    if meds != sorted(meds, reverse=True) or any(x["mediana_m"] is not None for x in pr[len(meds):]):
+        falhas.append("por_regiao fora da ordem da maior para a menor distância")
     b = E["brasil"]
     print(f"estatisticas.json: {b['mudou_sec']} seções e {b['mudou_el']} eleitores mudaram, "
           f"{len(E['municipios'])} municípios, mediana {dist['mediana_m']} m — {'OK' if not falhas else 'FALHOU'}")

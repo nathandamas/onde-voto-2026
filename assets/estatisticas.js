@@ -175,6 +175,15 @@ function distancia() {
   $("#explica-dist").innerHTML = `Medido em ${fmt(d.com)} das ${fmt(d.com + d.sem)} seções que mudaram. ` +
     (d.sem ? `Nas outras ${fmt(d.sem)}, falta a coordenada de um dos locais no cadastro. ` : "") +
     `Distância curta não quer dizer o mesmo lugar: pode ser outro prédio na mesma quadra ou uma coordenada imprecisa.`;
+  // distância típica (mediana) por região, já em ordem da maior para a menor no JSON
+  const regs = (d.por_regiao || []).filter(r => r.mediana_m != null);
+  const MR = { texto: r => `<b>${distTexto(r.mediana_m)}</b>`,
+               sub: r => `medida em ${fmt(r.com)} de ${plural(r.com + r.sem, "seção que mudou", "seções que mudaram")}` };
+  const maxR = Math.max(...regs.map(r => r.mediana_m), 1);
+  $("#b-dist-reg").innerHTML = regs.map(r => linhaBarra(esc(r.nome), r, r.mediana_m, maxR, MR)).join("");
+  const exR = (d.por_regiao || []).find(r => r.regiao === "EX" && r.mediana_m == null && r.sem);
+  $("#explica-dist-reg").innerHTML = (exR ? `O exterior não aparece porque o TSE não publica as coordenadas dos locais fora do país (${plural(exR.sem, "seção mudou", "seções mudaram")} lá). ` : "") +
+    `Com poucas seções medidas, a distância típica de uma região pode mudar bastante se o cadastro for corrigido.`;
   $("#maiores").innerHTML = d.maiores.map(p => `<li><div class="m-cab"><b>${distTexto(p.km * 1000)}</b> · ${esc(p.mun)} (${p.uf === "ZZ" ? "exterior" : p.uf}) · ${plural(p.secoes, "seção", "seções")}</div>` +
     `<div class="m-local"><span class="m-rot">Antes:</span> ${esc(p.de)}</div><div class="m-local"><span class="m-rot">Agora:</span> ${esc(p.para)}</div></li>`).join("");
 }

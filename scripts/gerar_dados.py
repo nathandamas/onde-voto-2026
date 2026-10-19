@@ -306,6 +306,7 @@ def gerar_estatisticas(pasta_dados, ufs):
                      "locais": 0, "municipios": 0}
     brasil, regioes, por_uf, municipios = vazio(), {r: vazio() for r in REGIOES}, [], []
     distancias, sem_dist, pares = [], 0, {}
+    dist_reg, sem_reg = {r: [] for r in REGIOES}, {r: 0 for r in REGIOES}   # distâncias por região
     for u in ufs:
         D = json.load(open(Path(pasta_dados) / f"{u['uf']}.json", encoding="utf-8"))
         if "eleitores" not in D:
@@ -314,6 +315,9 @@ def gerar_estatisticas(pasta_dados, ufs):
         x = vazio(); x["secoes"] = len(D["secoes"]); x["eleitores"] = sum(E["mun"])
         mun = {}
         locais_mudou = set()
+        r = REGIAO_DA_UF.get(u["uf"])
+        if r is None:
+            sys.exit(f"UF sem região definida: {u['uf']}")
         for l in D["secoes"]:
             m = mun.setdefault(l[2], {"secoes": 0, "mudou_sec": 0, "mudou_el": 0, "confira_sec": 0, "confira_el": 0})
             m["secoes"] += 1
@@ -328,9 +332,9 @@ def gerar_estatisticas(pasta_dados, ufs):
                 locais_mudou.add(e[3])
                 dist = distancia_m(D["locais"][e[4]], D["locais"][e[3]])   # coordenadas já sem as suspeitas
                 if dist is None:
-                    sem_dist += 1
+                    sem_dist += 1; sem_reg[r] += 1
                 else:
-                    distancias.append((dist, el))
+                    distancias.append((dist, el)); dist_reg[r].append(dist)
                     pr = pares.setdefault((u["uf"], e[4], e[3]), {"uf": u["uf"], "mun": D["municipios"][l[2]],
                                                                     "km": round(dist / 1000, 1), "de": D["locais"][e[4]]["n"],
                                                                     "para": D["locais"][e[3]]["n"], "secoes": 0})
@@ -340,9 +344,6 @@ def gerar_estatisticas(pasta_dados, ufs):
             if m["mudou_sec"] or m["confira_sec"]:
                 municipios.append(dict(uf=u["uf"], mun=D["municipios"][i], eleitores=E["mun"][i], **m))
         x["municipios"] = sum(1 for m in mun.values() if m["mudou_sec"])
-        r = REGIAO_DA_UF.get(u["uf"])
-        if r is None:
-            sys.exit(f"UF sem região definida: {u['uf']}")
         for alvo in (brasil, regioes[r]):
             for k in alvo:
                 alvo[k] += x[k]
@@ -352,11 +353,18 @@ def gerar_estatisticas(pasta_dados, ufs):
         sel = [el for d, el in distancias if d >= ini and (fim is None or d < fim)]
         faixas.append({"de": ini, "ate": fim, "secoes": len(sel), "eleitores": sum(sel)})
         ini = fim
-    ds = sorted(d for d, _ in distancias)
-    mediana = None
-    if ds:
+    def mediana_de(valores):
+        ds = sorted(valores)
+        if not ds:
+            return None
         meio = len(ds) // 2
-        mediana = round(ds[meio] if len(ds) % 2 else (ds[meio - 1] + ds[meio]) / 2)
+        return round(ds[meio] if len(ds) % 2 else (ds[meio - 1] + ds[meio]) / 2)
+    ds = [d for d, _ in distancias]
+    mediana = mediana_de(ds)
+    # distância típica (mediana) por região, da maior para a menor; o exterior não tem coordenadas
+    por_regiao = sorted(({"regiao": r, "nome": REGIOES[r][0], "com": len(dist_reg[r]), "sem": sem_reg[r],
+                          "mediana_m": mediana_de(dist_reg[r])} for r in REGIOES),
+                        key=lambda x: (x["mediana_m"] is None, -(x["mediana_m"] or 0), x["nome"]))
     municipios.sort(key=lambda m: (-m["mudou_sec"], -m["confira_sec"], m["uf"], m["mun"]))
     saida = {"gerado_tse": sorted({d for u in ufs for d in u["gerado_tse"]}),
              "brasil": brasil,
@@ -364,7 +372,8 @@ def gerar_estatisticas(pasta_dados, ufs):
              "ufs": por_uf,
              "municipios": municipios,
              "distancia": {"com": len(ds), "sem": sem_dist, "mediana_m": mediana, "faixas": faixas,
-                           "maiores": sorted(pares.values(), key=lambda p: -p["km"])[:5]}}
+                           "maiores": sorted(pares.values(), key=lambda p: -p["km"])[:5],
+                           "por_regiao": por_regiao}}
     with open(Path(pasta_dados) / "estatisticas.json", "w", encoding="utf-8") as f:
         json.dump(saida, f, ensure_ascii=False, separators=(",", ":"))
     print(f"estatísticas: {brasil['mudou_sec']} seções e {brasil['mudou_el']} eleitores mudaram de local, "
