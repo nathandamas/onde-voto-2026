@@ -61,13 +61,15 @@ def testar_uf(caminho_csv):
     ok = lambda cond, msg: cond or falhas.append(msg)
     # guarda só os campos necessários, por turno: (zona, seção) -> tupla
     t = {"1": {}, "2": {}}
-    uf, geracao = None, set()
+    uf, geracao, eleitores = None, set(), {}
     with open(caminho_csv, encoding="latin-1", newline="") as f:
         for r in csv.DictReader(f, delimiter=";"):
             uf = r["SG_UF"]; geracao.add(r["DT_GERACAO"])
             k = (int(r["NR_ZONA"]), int(r["NR_SECAO"]))
             if k in t[r["NR_TURNO"]]:
                 falhas.append(f"seção duplicada no CSV, turno {r['NR_TURNO']}: {k}")
+            if r["NR_TURNO"] == "2":
+                eleitores[k] = int(r["QT_ELEITOR_SECAO"])
             ag = int(r["NR_SECAO_PRINCIPAL"]) if r["DS_TIPO_SECAO_AGREGADA"] == "Agregada" else -1
             t[r["NR_TURNO"]][k] = (r["NR_LOCAL_VOTACAO"], norm(r["NM_LOCAL_VOTACAO"]), norm(r["NM_MUNICIPIO"]), r["CD_MUNICIPIO"], ag,
                                    {"c": r["NR_LOCAL_VOTACAO"], "n": r["NM_LOCAL_VOTACAO"], "e": r["DS_ENDERECO"],
@@ -111,10 +113,17 @@ def testar_uf(caminho_csv):
     por = {(l[0], l[1]): l for l in D["secoes"]}
     efj = lambda l: por.get((l[0], l[5]), l) if l[5] > 0 else l
     difs, cont = [], {}
+    # números para conferir data/estatisticas.json, calculados só com o CSV e com a regra recalculada
+    est = {"uf": uf, "secoes": len(t["2"]), "eleitores": sum(eleitores.values()), "mun": {}}
     for k, l in js.items():
         a, b = ef("1", k), ef("2", k)
         esp = situacao_esperada(a[5] if a else None, b[5])
         cont[esp] = cont.get(esp, 0) + 1
+        nm = t["2"][k][2]
+        m = est["mun"].setdefault(nm, [0, 0, 0, 0, 0, 0])   # seções, eleitores, mudou seç./el., confira seç./el.
+        m[0] += 1; m[1] += eleitores[k]
+        if esp in (1, 2):
+            m[2 if esp == 1 else 4] += 1; m[3 if esp == 1 else 5] += eleitores[k]
         if esp != l[6]:
             difs.append((k, esp, l[6]))
     ok(not difs, f"{len(difs)} seções com situação diferente da recalculada, ex.: {difs[:3]}")
@@ -144,7 +153,7 @@ def testar_uf(caminho_csv):
     if sem:
         avisos.append(f"{sem} locais do 2º turno sem ponto no mapa (sem coordenada ou coordenada removida)")
     avisos.append("situações: " + ", ".join(f"{['igual','mudou','confira','nome','sem 1º turno'][k]} {v}" for k, v in sorted(cont.items())))
-    return uf, len(js), len(esperado), falhas, avisos
+    return uf, len(js), len(esperado), falhas, avisos, est
 
 
 def testar_mudancas():
@@ -181,6 +190,85 @@ def testar_mudancas():
     return falhas
 
 
+# regiões escritas de novo aqui, de propósito, para não depender do script que gera os dados
+_REGIAO = {**dict.fromkeys(["AC", "AM", "AP", "PA", "RO", "RR", "TO"], "N"),
+           **dict.fromkeys(["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"], "NE"),
+           **dict.fromkeys(["DF", "GO", "MS", "MT"], "CO"), **dict.fromkeys(["ES", "MG", "RJ", "SP"], "SE"),
+           **dict.fromkeys(["PR", "RS", "SC"], "S"), "ZZ": "EX"}
+
+
+def testar_estatisticas(ests, completo):
+    """data/estatisticas.json contra os números recalculados do CSV (seções, eleitores, situações)
+    e contra uma conta própria das distâncias, feita com as coordenadas de data/<UF>.json."""
+    falhas = []
+    caminho = RAIZ / "data" / "estatisticas.json"
+    if not caminho.exists():
+        return ["data/estatisticas.json não existe"]
+    E = json.load(open(caminho, encoding="utf-8"))
+    campos = lambda m: [m["secoes"], m["eleitores"], m["mudou_sec"], m["mudou_el"], m["confira_sec"], m["confira_el"]]
+    soma = lambda vs: [sum(x) for x in zip(*vs)] if vs else [0] * 6
+    por_uf_json = {u["uf"]: u for u in E["ufs"]}
+    reg_esp = {}
+    for est in ests:
+        uf = est["uf"]; u = por_uf_json.get(uf)
+        if u is None:
+            falhas.append(f"{uf} não está em estatisticas.json"); continue
+        esp = soma(list(est["mun"].values()))
+        if campos(u) != esp:
+            falhas.append(f"{uf}: {campos(u)} em estatisticas.json, {esp} pelo CSV")
+        if u["regiao"] != _REGIAO[uf]:
+            falhas.append(f"{uf}: região {u['regiao']}, esperado {_REGIAO[uf]}")
+        reg_esp.setdefault(_REGIAO[uf], []).append(esp)
+        # municípios com alguma mudança
+        obt = {norm(m["mun"]): campos(m) for m in E["municipios"] if m["uf"] == uf}
+        espm = {nm: v for nm, v in est["mun"].items() if v[2] or v[4]}
+        if obt != espm:
+            dif = [nm for nm in set(obt) | set(espm) if obt.get(nm) != espm.get(nm)]
+            falhas.append(f"{uf}: {len(dif)} municípios com números diferentes, ex.: {dif[:3]}")
+    if completo:
+        for r in E["regioes"]:
+            esp = soma(reg_esp.get(r["regiao"], []))
+            if campos(r) != esp:
+                falhas.append(f"região {r['regiao']}: {campos(r)} em estatisticas.json, {esp} pelo CSV")
+        if campos(E["brasil"]) != soma([soma(v) for v in reg_esp.values()]):
+            falhas.append("total do Brasil não confere com a soma das UFs")
+        if len(E["ufs"]) != len(ests):
+            falhas.append(f"estatisticas.json tem {len(E['ufs'])} UFs; foram testadas {len(ests)}")
+    # distâncias: conta própria (fórmula equiretangular, que difere da usada no script por centímetros nesta escala)
+    ds = []
+    for u in E["ufs"]:
+        D = json.load(open(RAIZ / "data" / f"{u['uf']}.json", encoding="utf-8"))
+        por = {(l[0], l[1]): l for l in D["secoes"]}
+        for l in D["secoes"]:
+            if l[6] != 1:
+                continue
+            e = por.get((l[0], l[5]), l) if l[5] > 0 else l
+            a, b = D["locais"][e[4]], D["locais"][e[3]]
+            if None in (a["lat"], b["lat"]):
+                continue
+            dy = (b["lat"] - a["lat"]) * 111195
+            dx = (b["lon"] - a["lon"]) * 111195 * math.cos(math.radians((a["lat"] + b["lat"]) / 2))
+            ds.append(math.hypot(dx, dy))
+    dist = E["distancia"]
+    if dist["com"] != len(ds) or dist["com"] + dist["sem"] != E["brasil"]["mudou_sec"]:
+        falhas.append(f"distância: {dist['com']} com e {dist['sem']} sem; recontado {len(ds)} com")
+    if sum(f["secoes"] for f in dist["faixas"]) != dist["com"]:
+        falhas.append("faixas de distância não somam o total")
+    for f in dist["faixas"]:
+        n = sum(1 for d in ds if d >= f["de"] and (f["ate"] is None or d < f["ate"]))
+        perto_borda = sum(1 for d in ds if any(lim is not None and abs(d - lim) < 1 for lim in (f["de"], f["ate"])))
+        if abs(n - f["secoes"]) > perto_borda:
+            falhas.append(f"faixa {f['de']}–{f['ate']} m: {f['secoes']} seções, recontado {n}")
+    if ds:
+        ds.sort(); med = ds[len(ds) // 2] if len(ds) % 2 else (ds[len(ds) // 2 - 1] + ds[len(ds) // 2]) / 2
+        if abs(med - dist["mediana_m"]) > 2:
+            falhas.append(f"mediana {dist['mediana_m']} m, recontado {med:.0f} m")
+    b = E["brasil"]
+    print(f"estatisticas.json: {b['mudou_sec']} seções e {b['mudou_el']} eleitores mudaram, "
+          f"{len(E['municipios'])} municípios, mediana {dist['mediana_m']} m — {'OK' if not falhas else 'FALHOU'}")
+    return falhas
+
+
 def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__)
@@ -188,9 +276,10 @@ def main():
     for e in map(Path, sys.argv[1:]):
         arqs += sorted(e.glob("eleitorado_local_votacao_*_*.csv")) if e.is_dir() else [e]
     arqs = [a for a in arqs if not a.stem.upper().endswith("_BRASIL")]
-    total_f, total_s, total_m = 0, 0, 0
+    total_f, total_s, total_m, ests = 0, 0, 0, []
     for a in arqs:
-        uf, n, mud, falhas, avisos = testar_uf(a)
+        uf, n, mud, falhas, avisos, est = testar_uf(a)
+        ests.append(est)
         total_s += n; total_m += mud; total_f += len(falhas)
         print(f"{uf}: {n} seções, {mud} mudam de local — {'OK' if not falhas else 'FALHOU'}")
         for x in avisos:
@@ -202,6 +291,11 @@ def main():
     total_f += len(falhas_m)
     for x in falhas_m:
         print(f"   FALHOU (mudancas.json): {x}")
+    ufs_json = {u["uf"] for u in json.load(open(RAIZ / "data" / "ufs.json", encoding="utf-8"))["ufs"]}
+    falhas_e = testar_estatisticas(ests, completo={e["uf"] for e in ests} == ufs_json)
+    total_f += len(falhas_e)
+    for x in falhas_e:
+        print(f"   FALHOU (estatisticas.json): {x}")
     if total_f:
         sys.exit(1)
     print("Todos os testes passaram.")

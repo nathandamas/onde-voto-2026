@@ -4,6 +4,12 @@
 
 Site estático para o eleitor consultar, pelo estado, pela cidade e pelo número da seção, **onde vota no 2º turno (25/10/2026)** e se o local **mudou desde o 1º turno (04/10/2026)**.
 
+Três páginas:
+
+- `index.html`: consulta da própria seção.
+- `mudancas.html`: mapa e lista de todos os locais que recebem seções que mudaram (link direto por estado: `mudancas.html#PR`).
+- `estatisticas.html`: números das mudanças por região, estado e cidade, com eleitores afetados e distância entre o local antigo e o novo.
+
 **Este site não é oficial.** A consulta oficial é o aplicativo e-Título e o Autoatendimento do TSE.
 
 ## Fonte dos dados
@@ -26,6 +32,8 @@ A regra fica em `scripts/gerar_dados.py` e é conferida por uma segunda implemen
 | **Mesmo local do 1º turno** | Mesmo código, nome e endereço. |
 
 Seções agregadas são mostradas no local da seção principal, onde fica a urna.
+
+Na página de números, "eleitores" é o campo `QT_ELEITOR_SECAO` (eleitores aptos vinculados à seção, igual nos dois turnos), e a distância é a linha reta entre as coordenadas do cadastro, só onde os dois turnos têm coordenada válida.
 
 ### Limitações
 
@@ -54,7 +62,7 @@ O site precisa ser servido por HTTP. Abrindo o `index.html` direto do disco, o n
    python tests/testar_dados.py pasta_extraida/
    ```
 
-   O primeiro gera `data/<UF>.json` e `data/ufs.json`; o segundo confere tudo contra os CSVs e falha se houver divergência.
+   O primeiro gera `data/<UF>.json`, `data/ufs.json`, `data/mudancas.json` e `data/estatisticas.json`; o segundo confere tudo contra os CSVs e falha se houver divergência.
 3. Faça commit da pasta `data/`.
 
 ## Mapa base
@@ -68,11 +76,17 @@ Positron vetorial da [CARTO](https://carto.com/basemaps), carregado com [MapLibr
 ## Arquivos
 
 ```
-index.html                 página
+index.html                 consulta da seção
+mudancas.html              mapa nacional das mudanças
+estatisticas.html          números das mudanças
 assets/app.js              busca, resultado e mapa
+assets/mudancas.js         página de mudanças
+assets/estatisticas.js     página de números
 assets/estilo.css          estilos (mobile first, tema claro e escuro)
 data/ufs.json              índice dos estados (totais, data, enquadramento do mapa)
 data/<UF>.json             seções e locais de cada estado (ZZ = exterior)
+data/mudancas.json         locais que recebem seções que mudaram, em todo o país
+data/estatisticas.json     totais por região, estado e município; distâncias
 data/contornos/<UF>.geojson limites municipais simplificados (só usados sem mapa base)
 lib/                       MapLibre GL JS 4.7.1 (BSD-3, ver LICENSE-maplibre.txt)
 scripts/gerar_dados.py     gera data/ a partir dos CSVs do TSE

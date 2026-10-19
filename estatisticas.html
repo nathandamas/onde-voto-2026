@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>As mudanças em números</title>
+<meta name="description" content="Quantas seções e quantos eleitores mudaram de local de votação do 1º para o 2º turno de 2026, por região, estado e cidade. Dados do cadastro do TSE.">
+<meta name="theme-color" content="#0f3b46">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="assets/estilo.css">
+</head>
+<body class="pagina-estat">
+<header class="topo">
+  <div class="faixa">
+    <p class="selo">Brasil · do 1º para o 2º turno · domingo, 25 de outubro</p>
+    <h1>As mudanças em <span>números</span></h1>
+    <p class="sub">Quantas seções e quantos eleitores votam em outro local no 2º turno, por região, estado e cidade, segundo o cadastro do TSE.</p>
+    <nav class="volta" aria-label="Outras páginas"><a href="./">← Consultar a minha seção</a> <a href="mudancas.html">Ver o mapa das mudanças →</a></nav>
+  </div>
+</header>
+
+<main class="conteudo">
+  <p id="erro" class="erro caixa-erro" role="alert" hidden></p>
+
+  <section class="destaques" aria-label="Resumo" id="destaques">
+    <p class="carregando" role="status">Carregando os números…</p>
+  </section>
+  <p class="nota-confira" id="nota-confira" hidden></p>
+
+  <section class="bloco" aria-labelledby="t-regiao">
+    <div class="bloco-cab">
+      <h2 id="t-regiao">Por região e por estado</h2>
+      <fieldset class="medida">
+        <legend>Comparar por</legend>
+        <label><input type="radio" name="medida" value="sec" checked> Seções</label>
+        <label><input type="radio" name="medida" value="el"> Eleitores</label>
+        <label><input type="radio" name="medida" value="pct"> % das seções</label>
+      </fieldset>
+      <p class="explica" id="explica-medida"></p>
+    </div>
+    <h3>Regiões</h3>
+    <ol class="barras" id="b-regioes"></ol>
+    <h3>Estados</h3>
+    <ol class="barras" id="b-ufs"></ol>
+    <details class="tabela-det">
+      <summary>Ver a tabela completa por estado</summary>
+      <div class="rolagem" tabindex="0" role="region" aria-label="Tabela por estado">
+        <table id="t-ufs"></table>
+      </div>
+    </details>
+  </section>
+
+  <section class="bloco" aria-labelledby="t-cidades">
+    <div class="bloco-cab">
+      <h2 id="t-cidades">Por cidade</h2>
+      <div class="controles">
+        <div class="campo">
+          <label for="c-uf">Estado</label>
+          <select id="c-uf"><option value="">Todo o Brasil</option></select>
+        </div>
+        <div class="campo">
+          <label for="c-ordem">Ordenar por</label>
+          <select id="c-ordem">
+            <option value="sec">Mais seções que mudaram</option>
+            <option value="el">Mais eleitores</option>
+            <option value="pct">Maior % das seções da cidade</option>
+          </select>
+        </div>
+      </div>
+      <p class="explica" id="explica-pct" hidden>Em cidades pequenas, poucas seções já fazem um percentual alto.</p>
+    </div>
+    <ol class="ranking" id="ranking"></ol>
+    <button type="button" class="botao-sec" id="mais-cidades" hidden></button>
+  </section>
+
+  <section class="bloco" aria-labelledby="t-dist">
+    <div class="bloco-cab">
+      <h2 id="t-dist">Distância entre o local antigo e o novo</h2>
+      <p class="explica" id="explica-dist"></p>
+    </div>
+    <ol class="barras" id="b-dist"></ol>
+    <p class="explica">Distância curta não quer dizer o mesmo lugar: pode ser outro prédio na mesma quadra ou uma coordenada imprecisa no cadastro.</p>
+    <h3>As maiores distâncias</h3>
+    <ol class="maiores" id="maiores"></ol>
+    <p class="explica">Distâncias grandes também podem vir de coordenada errada no cadastro. Confira o endereço antes de tirar conclusões.</p>
+  </section>
+
+  <details class="bloco metodo">
+    <summary><h2>Como contamos</h2></summary>
+    <ul>
+      <li><b>Mudou de local:</b> o local da seção no 2º turno é outro em relação ao 1º turno de 2026, no cadastro do TSE. É a mesma regra da página de consulta.</li>
+      <li><b>Confira o endereço:</b> o cadastro mostra nome ou endereço diferente para o local, que pode ser o mesmo prédio. Essas seções são contadas à parte e não entram nos totais de "mudou".</li>
+      <li><b>Eleitores:</b> número de eleitores aptos vinculados a cada seção (campo QT_ELEITOR_SECAO), igual nos dois turnos. Não inclui ajustes de voto em trânsito.</li>
+      <li><b>Seções agregadas:</b> votam no local da seção principal e são contadas pela situação desse local, com os próprios eleitores.</li>
+      <li><b>Distância:</b> linha reta entre as coordenadas do cadastro nos dois turnos. Coordenadas que caem a mais de 1 km fora do próprio município são descartadas, e essas seções ficam sem distância.</li>
+      <li><b>Regiões:</b> grandes regiões do IBGE. O voto no exterior aparece à parte, e lá "cidade" é a cidade do consulado ou da embaixada.</li>
+    </ul>
+  </details>
+
+  <aside class="confirme">
+    <h2>Confirme antes de sair de casa</h2>
+    <p>A consulta oficial está no aplicativo <b>e-Título</b> e no <a href="https://www.tse.jus.br/servicos-eleitorais/autoatendimento-eleitoral" target="_blank" rel="noopener">Autoatendimento do TSE</a>.</p>
+    <p>Dúvidas: procure o Tribunal Regional Eleitoral do seu estado na <a href="https://www.tse.jus.br/institucional/justica-eleitoral/tres" target="_blank" rel="noopener">lista de TREs do Brasil</a>.</p>
+  </aside>
+</main>
+
+<footer class="rodape">
+  <p><b>De onde vêm os dados.</b> Cadastro de locais de votação do Tribunal Superior Eleitoral, conjunto <a href="https://dadosabertos.tse.jus.br/dataset/eleitorado-2026" target="_blank" rel="noopener">Eleitorado por local de votação 2026</a>, arquivos gerados em <span id="data-tse">—</span>. Os números são calculados a partir desse cadastro e podem mudar se o TSE atualizar os arquivos.</p>
+  <p><span id="repo-txt" hidden>Código aberto no <a id="link-repo" href="#" target="_blank" rel="noopener">GitHub</a>.</span></p>
+</footer>
+
+<script src="assets/estatisticas.js"></script>
+</body>
+</html>

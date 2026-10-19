@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Gera data/<UF>.json e data/ufs.json a partir dos arquivos de Dados Abertos do TSE
+Gera data/<UF>.json, data/ufs.json, data/mudancas.json e data/estatisticas.json a partir dos arquivos de Dados Abertos do TSE
 "Eleitorado por local de votação 2026" (eleitorado_local_votacao_2026_<UF>.csv).
 
 Fonte única: cadastro do TSE. Para cada seção, o site mostra o local do 2º turno
@@ -29,7 +29,15 @@ UF_NOMES = {"AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas", "BA
 
 COLUNAS = ["DT_GERACAO", "AA_ELEICAO", "NR_TURNO", "SG_UF", "CD_MUNICIPIO", "NM_MUNICIPIO", "NR_ZONA", "NR_SECAO",
            "DS_TIPO_SECAO_AGREGADA", "NR_SECAO_PRINCIPAL", "NR_LOCAL_VOTACAO", "NM_LOCAL_VOTACAO", "DS_ENDERECO",
-           "NM_BAIRRO", "NR_LATITUDE", "NR_LONGITUDE"]
+           "NM_BAIRRO", "NR_LATITUDE", "NR_LONGITUDE", "QT_ELEITOR_SECAO"]
+
+# grandes regiões do IBGE; o exterior fica à parte
+REGIOES = {"N": ("Norte", "AC AM AP PA RO RR TO"), "NE": ("Nordeste", "AL BA CE MA PB PE PI RN SE"),
+           "CO": ("Centro-Oeste", "DF GO MS MT"), "SE": ("Sudeste", "ES MG RJ SP"), "S": ("Sul", "PR RS SC"),
+           "EX": ("Exterior", "ZZ")}
+REGIAO_DA_UF = {uf: r for r, (_, lista) in REGIOES.items() for uf in lista.split()}
+# faixas de distância em linha reta entre o local do 1º e o do 2º turno (limite superior, em metros)
+FAIXAS_M = [200, 500, 1000, 2000, 5000, None]
 
 SIGLAS = {"CMEI", "CEI", "CRAS", "CREAS", "APAE", "UTFPR", "UFPR", "CEEBJA", "CEIEBJA", "CAIC", "CAIAC", "UBS", "CEEP",
           "UNICENTRO", "UNESPAR", "UNIOESTE", "UEL", "UEM", "UEPG", "FECOP", "CERBI", "SESC", "SESI", "SENAI", "SENAC", "CSU",
@@ -51,8 +59,9 @@ def titulo(s):
             out.append(lp)
         elif p.strip(".,-()") in SIGLAS or re.fullmatch(r"[IVX]{1,4}[.,]?", p):
             out.append(p)
-        elif "'" in p:
-            out.append("'".join(x[:1].upper() + x[1:].lower() for x in p.split("'")))  # D'OESTE -> D'Oeste
+        elif "'" in p or "/" in p:   # D'OESTE -> D'Oeste; LAPA/SAPEZAL -> Lapa/Sapezal
+            sep = "'" if "'" in p else "/"
+            out.append(sep.join(titulo(x) if sep == "/" and x else x[:1].upper() + x[1:].lower() for x in p.split(sep)))
         else:
             out.append(p[:1].upper() + p[1:].lower())
     return " ".join(out)
@@ -177,6 +186,9 @@ def gerar(caminho_csv, pasta_dados, pasta_limites):
             if d["m"] != midx[m]:
                 sys.exit(f"{caminho_csv}: seção {chave} aparece em dois municípios.")
             d["t" + r["NR_TURNO"]] = idx[k]
+            if r["NR_TURNO"] == "2":
+                # eleitores vinculados originalmente à seção (leiame do TSE); é o mesmo número nos dois turnos
+                d["el"] = max(0, int(r["QT_ELEITOR_SECAO"] or 0))
             if r["DS_TIPO_SECAO_AGREGADA"] == "Agregada" and r["NR_SECAO_PRINCIPAL"] not in ("", "-1"):
                 d["ag"] = int(r["NR_SECAO_PRINCIPAL"])
 
@@ -213,11 +225,12 @@ def gerar(caminho_csv, pasta_dados, pasta_limites):
         print(f"aviso: {lim} não encontrado; coordenadas de {uf} não foram conferidas", file=sys.stderr)
 
     # [zona, seção, município, local 2º turno, local 1º turno (-1), seção principal se agregada (-1), situação]
-    saida, sem_2t = [], 0
+    saida, sem_2t, el_secao = [], 0, {}
     for (z, s), d in sorted(sec.items()):
         if "t2" not in d:
             sem_2t += 1; continue
         saida.append([z, s, d["m"], d["t2"], d.get("t1", -1), d.get("ag", -1), None])
+        el_secao[(z, s)] = d.get("el", 0)
     por = {(l[0], l[1]): l for l in saida}
     efetiva = lambda l: por.get((l[0], l[5]), l) if l[5] > 0 else l
     orig = lambda i: dict(locais[i], lat=coord_orig[i][0], lon=coord_orig[i][1])
@@ -227,6 +240,12 @@ def gerar(caminho_csv, pasta_dados, pasta_limites):
     mudaram = sum(1 for l in saida if l[6] == MUDOU)
     confira = sum(1 for l in saida if l[6] == CONFIRA)
 
+    # eleitores: total por município e, para as seções que mudaram ou que pedem conferência, por seção
+    el_mun = [0] * len(municipios)
+    for l in saida:
+        el_mun[l[2]] += el_secao[(l[0], l[1])]
+    el_sec = {f"{l[0]}-{l[1]}": el_secao[(l[0], l[1])] for l in saida if l[6] in (MUDOU, CONFIRA)}
+
     usados = {efetiva(l)[3] for l in saida}
     pts = [(locais[i]["lon"], locais[i]["lat"]) for i in usados if locais[i]["lat"] is not None]
     bbox = [min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts)] if pts else None
@@ -234,7 +253,8 @@ def gerar(caminho_csv, pasta_dados, pasta_limites):
     Path(pasta_dados).mkdir(parents=True, exist_ok=True)
     with open(Path(pasta_dados) / f"{uf}.json", "w", encoding="utf-8") as f:
         json.dump({"fonte": "TSE - Dados Abertos - Eleitorado por local de votação", "uf": uf, "eleicao": sorted(anos),
-                   "gerado_tse": sorted(geracao), "municipios": municipios, "locais": locais, "secoes": saida},
+                   "gerado_tse": sorted(geracao), "municipios": municipios, "locais": locais, "secoes": saida,
+                   "eleitores": {"mun": el_mun, "sec": el_sec}},
                   f, ensure_ascii=False, separators=(",", ":"))
 
     print(f"{uf}: {len(saida)} seções, {mudaram} mudam de local, {confira} para conferir, {len(locais)} locais, "
@@ -245,7 +265,8 @@ def gerar(caminho_csv, pasta_dados, pasta_limites):
         print(f"   sem limite municipal para conferir: {', '.join(sorted(sem_limite))}", file=sys.stderr)
     if sem_2t:
         print(f"   atenção: {sem_2t} seções sem linha de 2º turno foram ignoradas", file=sys.stderr)
-    return {"uf": uf, "nome": UF_NOMES.get(uf, uf), "secoes": len(saida), "mudaram": mudaram, "confira": confira,
+    return {"uf": uf, "nome": UF_NOMES.get(uf, uf), "secoes": len(saida), "eleitores": sum(el_mun),
+            "mudaram": mudaram, "confira": confira,
             "municipios": len(municipios), "gerado_tse": sorted(geracao), "bbox": bbox,
             "coord_removidas": len(suspeitas), "sem_limite": sorted(sem_limite)}
 
@@ -278,6 +299,78 @@ def gerar_mudancas(pasta_dados, ufs):
           f"-> {Path(pasta_dados) / 'mudancas.json'}", file=sys.stderr)
 
 
+def gerar_estatisticas(pasta_dados, ufs):
+    """data/estatisticas.json: números das mudanças por região, estado e município, e distância das mudanças.
+    "Mudou" e "confira" são contados à parte. Lido de data/<UF>.json, com a mesma classificação do site."""
+    vazio = lambda: {"secoes": 0, "eleitores": 0, "mudou_sec": 0, "mudou_el": 0, "confira_sec": 0, "confira_el": 0,
+                     "locais": 0, "municipios": 0}
+    brasil, regioes, por_uf, municipios = vazio(), {r: vazio() for r in REGIOES}, [], []
+    distancias, sem_dist, pares = [], 0, {}
+    for u in ufs:
+        D = json.load(open(Path(pasta_dados) / f"{u['uf']}.json", encoding="utf-8"))
+        if "eleitores" not in D:
+            sys.exit(f"data/{u['uf']}.json foi gerado por uma versão antiga deste script. Rode de novo com todos os CSVs.")
+        E, por = D["eleitores"], {(l[0], l[1]): l for l in D["secoes"]}
+        x = vazio(); x["secoes"] = len(D["secoes"]); x["eleitores"] = sum(E["mun"])
+        mun = {}
+        locais_mudou = set()
+        for l in D["secoes"]:
+            m = mun.setdefault(l[2], {"secoes": 0, "mudou_sec": 0, "mudou_el": 0, "confira_sec": 0, "confira_el": 0})
+            m["secoes"] += 1
+            if l[6] not in (MUDOU, CONFIRA):
+                continue
+            el = E["sec"][f"{l[0]}-{l[1]}"]
+            tipo = "mudou" if l[6] == MUDOU else "confira"
+            for alvo in (x, m):
+                alvo[tipo + "_sec"] += 1; alvo[tipo + "_el"] += el
+            e = por.get((l[0], l[5]), l) if l[5] > 0 else l
+            if l[6] == MUDOU:
+                locais_mudou.add(e[3])
+                dist = distancia_m(D["locais"][e[4]], D["locais"][e[3]])   # coordenadas já sem as suspeitas
+                if dist is None:
+                    sem_dist += 1
+                else:
+                    distancias.append((dist, el))
+                    pr = pares.setdefault((u["uf"], e[4], e[3]), {"uf": u["uf"], "mun": D["municipios"][l[2]],
+                                                                    "km": round(dist / 1000, 1), "de": D["locais"][e[4]]["n"],
+                                                                    "para": D["locais"][e[3]]["n"], "secoes": 0})
+                    pr["secoes"] += 1
+        x["locais"] = len(locais_mudou)
+        for i, m in mun.items():
+            if m["mudou_sec"] or m["confira_sec"]:
+                municipios.append(dict(uf=u["uf"], mun=D["municipios"][i], eleitores=E["mun"][i], **m))
+        x["municipios"] = sum(1 for m in mun.values() if m["mudou_sec"])
+        r = REGIAO_DA_UF.get(u["uf"])
+        if r is None:
+            sys.exit(f"UF sem região definida: {u['uf']}")
+        for alvo in (brasil, regioes[r]):
+            for k in alvo:
+                alvo[k] += x[k]
+        por_uf.append(dict(uf=u["uf"], nome=u["nome"], regiao=r, **x))
+    faixas, ini = [], 0
+    for fim in FAIXAS_M:
+        sel = [el for d, el in distancias if d >= ini and (fim is None or d < fim)]
+        faixas.append({"de": ini, "ate": fim, "secoes": len(sel), "eleitores": sum(sel)})
+        ini = fim
+    ds = sorted(d for d, _ in distancias)
+    mediana = None
+    if ds:
+        meio = len(ds) // 2
+        mediana = round(ds[meio] if len(ds) % 2 else (ds[meio - 1] + ds[meio]) / 2)
+    municipios.sort(key=lambda m: (-m["mudou_sec"], -m["confira_sec"], m["uf"], m["mun"]))
+    saida = {"gerado_tse": sorted({d for u in ufs for d in u["gerado_tse"]}),
+             "brasil": brasil,
+             "regioes": [dict(regiao=r, nome=REGIOES[r][0], **regioes[r]) for r in REGIOES],
+             "ufs": por_uf,
+             "municipios": municipios,
+             "distancia": {"com": len(ds), "sem": sem_dist, "mediana_m": mediana, "faixas": faixas,
+                           "maiores": sorted(pares.values(), key=lambda p: -p["km"])[:5]}}
+    with open(Path(pasta_dados) / "estatisticas.json", "w", encoding="utf-8") as f:
+        json.dump(saida, f, ensure_ascii=False, separators=(",", ":"))
+    print(f"estatísticas: {brasil['mudou_sec']} seções e {brasil['mudou_el']} eleitores mudaram de local, "
+          f"{len(municipios)} municípios -> {Path(pasta_dados) / 'estatisticas.json'}", file=sys.stderr)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("entradas", nargs="+", help="CSVs do TSE ou uma pasta com eles")
@@ -303,6 +396,7 @@ def main():
     total = sum(u["secoes"] for u in ufs); mud = sum(u["mudaram"] for u in ufs); conf = sum(u.get("confira", 0) for u in ufs)
     print(f"TOTAL: {len(ufs)} UFs, {total} seções, {mud} mudam de local, {conf} para conferir -> {indice_path}", file=sys.stderr)
     gerar_mudancas(a.dados, ufs)
+    gerar_estatisticas(a.dados, ufs)
 
 
 if __name__ == "__main__":
