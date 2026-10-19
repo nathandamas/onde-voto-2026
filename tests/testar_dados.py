@@ -235,7 +235,7 @@ def testar_estatisticas(ests, completo):
         if len(E["ufs"]) != len(ests):
             falhas.append(f"estatisticas.json tem {len(E['ufs'])} UFs; foram testadas {len(ests)}")
     # distâncias: conta própria (fórmula equiretangular, que difere da usada no script por centímetros nesta escala)
-    ds, ds_reg, sem_reg = [], {}, {}
+    ds, ds_reg, sem_reg, pares_t = [], {}, {}, {}
     for u in E["ufs"]:
         D = json.load(open(RAIZ / "data" / f"{u['uf']}.json", encoding="utf-8"))
         por = {(l[0], l[1]): l for l in D["secoes"]}
@@ -251,6 +251,7 @@ def testar_estatisticas(ests, completo):
             dx = (b["lon"] - a["lon"]) * 111195 * math.cos(math.radians((a["lat"] + b["lat"]) / 2))
             ds.append(math.hypot(dx, dy))
             ds_reg.setdefault(_REGIAO[u["uf"]], []).append(ds[-1])
+            pares_t.setdefault(_REGIAO[u["uf"]], {})[(u["uf"], e[4], e[3])] = ds[-1]
     dist = E["distancia"]
     if dist["com"] != len(ds) or dist["com"] + dist["sem"] != E["brasil"]["mudou_sec"]:
         falhas.append(f"distância: {dist['com']} com e {dist['sem']} sem; recontado {len(ds)} com")
@@ -283,6 +284,10 @@ def testar_estatisticas(ests, completo):
         if mx and _REGIAO[mx["uf"]] != x["regiao"]:
             falhas.append(f"região {x['regiao']}: maior distância em {mx['uf']}, de outra região")
         n2 = sum(1 for d in v if d > 2000); borda = sum(1 for d in v if abs(d - 2000) < 1)
+        pt = pares_t.get(x["regiao"], {})
+        if x.get("mudancas") != len(pt) or abs(sum(1 for d in pt.values() if d > 2000) - x.get("mudancas_acima_2km", -99)) > borda:
+            falhas.append(f"região {x['regiao']}: {x.get('mudancas')} mudanças de local ({x.get('mudancas_acima_2km')} acima de 2 km), "
+                          f"recontado {len(pt)} ({sum(1 for d in pt.values() if d > 2000)})")
         if abs(n2 - x.get("acima_2km", -99)) > borda:
             falhas.append(f"região {x['regiao']}: {x.get('acima_2km')} acima de 2 km, recontado {n2}")
     maiores = [x["maior"]["m"] for x in pr if x.get("maior")]

@@ -308,6 +308,7 @@ def gerar_estatisticas(pasta_dados, ufs):
     distancias, sem_dist, pares = [], 0, {}
     dist_reg, sem_reg = {r: [] for r in REGIOES}, {r: 0 for r in REGIOES}   # distâncias por região
     maior_reg = {}   # região -> (distância, par de locais) da mudança mais distante
+    pares_reg = {r: {} for r in REGIOES}   # região -> {par (local antigo, local novo): distância}; várias seções mudam juntas
     for u in ufs:
         D = json.load(open(Path(pasta_dados) / f"{u['uf']}.json", encoding="utf-8"))
         if "eleitores" not in D:
@@ -340,6 +341,7 @@ def gerar_estatisticas(pasta_dados, ufs):
                                                                     "km": round(dist / 1000, 1), "de": D["locais"][e[4]]["n"],
                                                                     "para": D["locais"][e[3]]["n"], "secoes": 0})
                     pr["secoes"] += 1
+                    pares_reg[r][(u["uf"], e[4], e[3])] = dist
                     if r not in maior_reg or dist > maior_reg[r][0]:
                         maior_reg[r] = (dist, (u["uf"], e[4], e[3]))
         x["locais"] = len(locais_mudou)
@@ -373,7 +375,9 @@ def gerar_estatisticas(pasta_dados, ufs):
         return {"m": round(d), "uf": pr["uf"], "mun": pr["mun"], "secoes": pr["secoes"], "de": pr["de"], "para": pr["para"]}
     por_regiao = sorted(({"regiao": r, "nome": REGIOES[r][0], "com": len(dist_reg[r]), "sem": sem_reg[r],
                           "mediana_m": mediana_de(dist_reg[r]), "maior": maior(r),
-                          "acima_2km": sum(1 for d in dist_reg[r] if d > 2000)} for r in REGIOES),
+                          "acima_2km": sum(1 for d in dist_reg[r] if d > 2000),
+                          "mudancas": len(pares_reg[r]),
+                          "mudancas_acima_2km": sum(1 for d in pares_reg[r].values() if d > 2000)} for r in REGIOES),
                         key=lambda x: (x["maior"] is None, -(x["maior"] or {"m": 0})["m"], x["nome"]))
     municipios.sort(key=lambda m: (-m["mudou_sec"], -m["confira_sec"], m["uf"], m["mun"]))
     saida = {"gerado_tse": sorted({d for u in ufs for d in u["gerado_tse"]}),

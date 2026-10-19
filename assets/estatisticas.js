@@ -184,12 +184,24 @@ function distancia() {
   const frac = r => r.acima_2km / r.com;
   const por2 = [...comDist].sort((a, b) => frac(b) - frac(a) || a.nome.localeCompare(b.nome, "pt-BR"));
   const M2 = { texto: r => `<b>${pct(r.acima_2km, r.com)}</b>`,
-               sub: r => `${fmt(r.acima_2km)} de ${plural(r.com, "mudança medida", "mudanças medidas")}` };
+               sub: r => `${fmt(r.acima_2km)} de ${plural(r.com, "seção medida", "seções medidas")}` };
   const max2 = Math.max(...por2.map(frac), 0) || 1;
   $("#b-dist-2km").innerHTML = por2.map(r => linhaBarra(esc(r.nome), r, frac(r), max2, M2)).join("");
+  // quantas mudanças de local (prédio antigo → prédio novo) existem em cada região
+  const porMud = [...comDist].filter(r => r.mudancas != null).sort((a, b) => b.mudancas - a.mudancas || a.nome.localeCompare(b.nome, "pt-BR"));
+  const mr = $("#mudancas-reg");
+  if (porMud.length) {
+    const lista = nomeLista(porMud.map(r => `<b>${fmt(r.mudancas)}</b> no ${esc(r.nome)}`));
+    const unicas = porMud.filter(r => r.mudancas_acima_2km === 1 && r.acima_2km > 1)
+      .map(r => `No ${esc(r.nome)}, as ${fmt(r.acima_2km)} seções acima de 2 km vêm de uma única mudança de local.`);
+    mr.innerHTML = `<b>Quantas mudanças de local há em cada região.</b> Várias seções costumam mudar juntas, do mesmo prédio para o mesmo prédio novo. ` +
+      `As seções medidas vêm destas mudanças de local: ${lista}. ${unicas.length ? unicas.join(" ") + " " : ""}` +
+      `Onde há poucas mudanças de local, uma ou duas decisões definem a posição da região nos gráficos.`;
+    mr.hidden = false;
+  }
   const exR = (d.por_regiao || []).find(r => r.regiao === "EX" && !r.com && r.sem);
   $("#explica-dist-reg").innerHTML = (exR ? `O exterior não aparece porque o TSE não publica as coordenadas dos locais fora do país (${plural(exR.sem, "seção mudou", "seções mudaram")} lá). ` : "") +
-    `Numa região com poucas mudanças medidas, um ou dois casos podem mudar bastante esses números.`;
+    "";
   $("#maiores").innerHTML = d.maiores.map(p => `<li><div class="m-cab"><b>${distTexto(p.km * 1000)}</b> · ${esc(p.mun)} (${p.uf === "ZZ" ? "exterior" : p.uf}) · ${plural(p.secoes, "seção", "seções")}</div>` +
     `<div class="m-local"><span class="m-rot">Antes:</span> ${esc(p.de)}</div><div class="m-local"><span class="m-rot">Agora:</span> ${esc(p.para)}</div></li>`).join("");
 }
