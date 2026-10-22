@@ -10,7 +10,7 @@
 "volta": 0,
 "municipios": 22,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -73.644022,
@@ -31,7 +31,7 @@
 "volta": 0,
 "municipios": 102,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -38.192866,
@@ -52,7 +52,7 @@
 "volta": 0,
 "municipios": 16,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -52.580819,
@@ -68,12 +68,12 @@
 "nome": "Amazonas",
 "secoes": 8577,
 "eleitores": 2801182,
-"mudaram": 18,
+"mudaram": 21,
 "confira": 2,
 "volta": 0,
 "municipios": 62,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -72.972347,
@@ -90,11 +90,11 @@
 "secoes": 37950,
 "eleitores": 11321005,
 "mudaram": 6,
-"confira": 59,
-"volta": 2,
+"confira": 63,
+"volta": 0,
 "municipios": 417,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -46.289887,
@@ -118,7 +118,7 @@
 "volta": 0,
 "municipios": 184,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -41.368464,
@@ -141,7 +141,7 @@
 "volta": 0,
 "municipios": 1,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -48.257962,
@@ -162,7 +162,7 @@
 "volta": 0,
 "municipios": 78,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -41.85049,
@@ -183,7 +183,7 @@
 "volta": 0,
 "municipios": 246,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -53.206832,
@@ -206,7 +206,7 @@
 "volta": 4,
 "municipios": 217,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -48.553193,
@@ -227,7 +227,7 @@
 "volta": 0,
 "municipios": 142,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -61.494742,
@@ -251,7 +251,7 @@
 "volta": 1,
 "municipios": 79,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -57.889576,
@@ -269,12 +269,12 @@
 "nome": "Minas Gerais",
 "secoes": 54193,
 "eleitores": 16377659,
-"mudaram": 96,
-"confira": 24,
+"mudaram": 43,
+"confira": 23,
 "volta": 0,
 "municipios": 853,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -50.910008,
@@ -292,12 +292,12 @@
 "nome": "Paraná",
 "secoes": 27336,
 "eleitores": 8609026,
-"mudaram": 9,
+"mudaram": 1,
 "confira": 0,
-"volta": 2,
+"volta": 14,
 "municipios": 399,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -54.594685,
@@ -318,7 +318,7 @@
 "volta": 0,
 "municipios": 223,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -38.748585,
@@ -338,12 +338,12 @@
 "nome": "Pará",
 "secoes": 22082,
 "eleitores": 6265355,
-"mudaram": 41,
-"confira": 7,
+"mudaram": 56,
+"confira": 36,
 "volta": 2,
 "municipios": 144,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -58.444786,
@@ -367,7 +367,7 @@
 "volta": 0,
 "municipios": 185,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -41.294135,
@@ -387,12 +387,12 @@
 "nome": "Piauí",
 "secoes": 11261,
 "eleitores": 2708160,
-"mudaram": 9,
+"mudaram": 18,
 "confira": 0,
 "volta": 7,
 "municipios": 224,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -45.923651,
@@ -400,7 +400,7 @@
 -40.434055,
 -2.809962
 ],
-"coord_removidas": 29,
+"coord_removidas": 28,
 "sem_limite": [
 "Nazária"
 ]
@@ -415,7 +415,7 @@
 "volta": 9,
 "municipios": 167,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -38.504104,
@@ -437,12 +437,12 @@
 "nome": "Rio Grande do Sul",
 "secoes": 27738,
 "eleitores": 8526233,
-"mudaram": 10,
+"mudaram": 6,
 "confira": 18,
 "volta": 6,
 "municipios": 497,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -57.548217,
@@ -461,11 +461,11 @@
 "secoes": 38738,
 "eleitores": 12857000,
 "mudaram": 5,
-"confira": 19,
+"confira": 26,
 "volta": 0,
 "municipios": 92,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -44.792513,
@@ -486,7 +486,7 @@
 "volta": 0,
 "municipios": 52,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -66.617257,
@@ -510,7 +510,7 @@
 "volta": 0,
 "municipios": 15,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -62.0996,
@@ -531,7 +531,7 @@
 "volta": 0,
 "municipios": 295,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -53.806679,
@@ -555,7 +555,7 @@
 "volta": 0,
 "municipios": 75,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -38.182488,
@@ -578,7 +578,7 @@
 "volta": 0,
 "municipios": 645,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -53.058098,
@@ -603,7 +603,7 @@
 "volta": 0,
 "municipios": 139,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": [
 -50.698093,
@@ -627,7 +627,7 @@
 "volta": 0,
 "municipios": 186,
 "gerado_tse": [
-"21/10/2026"
+"22/10/2026"
 ],
 "bbox": null,
 "coord_removidas": 0,
