@@ -113,7 +113,7 @@
 "nome": "Ceará",
 "secoes": 25650,
 "eleitores": 6998494,
-"mudaram": 10,
+"mudaram": 11,
 "confira": 0,
 "volta": 0,
 "municipios": 184,
@@ -222,7 +222,7 @@
 "nome": "Mato Grosso",
 "secoes": 8975,
 "eleitores": 2638230,
-"mudaram": 28,
+"mudaram": 12,
 "confira": 0,
 "volta": 0,
 "municipios": 142,
@@ -269,8 +269,8 @@
 "nome": "Minas Gerais",
 "secoes": 54193,
 "eleitores": 16377659,
-"mudaram": 43,
-"confira": 23,
+"mudaram": 54,
+"confira": 21,
 "volta": 0,
 "municipios": 853,
 "gerado_tse": [
@@ -338,7 +338,7 @@
 "nome": "Pará",
 "secoes": 22082,
 "eleitores": 6265355,
-"mudaram": 25,
+"mudaram": 32,
 "confira": 36,
 "volta": 2,
 "municipios": 144,
@@ -388,7 +388,7 @@
 "secoes": 11261,
 "eleitores": 2708160,
 "mudaram": 23,
-"confira": 0,
+"confira": 7,
 "volta": 7,
 "municipios": 224,
 "gerado_tse": [
@@ -400,7 +400,7 @@
 -40.434055,
 -2.809962
 ],
-"coord_removidas": 28,
+"coord_removidas": 29,
 "sem_limite": [
 "Nazária"
 ]
