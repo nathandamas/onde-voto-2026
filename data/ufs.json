@@ -224,7 +224,7 @@
 "eleitores": 2638230,
 "mudaram": 12,
 "confira": 0,
-"volta": 0,
+"volta": 9,
 "municipios": 142,
 "gerado_tse": [
 "22/10/2026"
@@ -362,7 +362,7 @@
 "nome": "Pernambuco",
 "secoes": 22091,
 "eleitores": 7225744,
-"mudaram": 6,
+"mudaram": 10,
 "confira": 0,
 "volta": 0,
 "municipios": 185,
@@ -387,7 +387,7 @@
 "nome": "Piauí",
 "secoes": 11261,
 "eleitores": 2708160,
-"mudaram": 23,
+"mudaram": 25,
 "confira": 7,
 "volta": 7,
 "municipios": 224,
@@ -461,7 +461,7 @@
 "secoes": 38738,
 "eleitores": 12857000,
 "mudaram": 5,
-"confira": 26,
+"confira": 5,
 "volta": 0,
 "municipios": 92,
 "gerado_tse": [
